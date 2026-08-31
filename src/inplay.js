@@ -336,7 +336,9 @@
     el.classList.add('is-rolling');
     var step = 0;
     (function tick() {
-      if (step >= SPIN.length) {
+      // The deceleration lands ON the real number rather than showing one more
+      // random frame and swapping it afterwards.
+      if (step >= SPIN.length - 1) {
         target.textContent = finalTotal;
         el.classList.remove('is-rolling');
         done();
@@ -554,27 +556,45 @@
    * before rolling damage — except on a natural 20 or 1, which by the 2024
    * rules always hit and always miss respectively.
    */
-  function rollAttack(attack, labelPrefix, effectKey, onSettled) {
+  /**
+   * `onResolved` fires once this attack is actually settled — the hit or miss
+   * declared, or a natural 20 or 1 having decided it. A queued follow-up strike
+   * waits on that rather than on the dice landing, so nothing rolls while you
+   * are still deciding the previous one.
+   */
+  function rollAttack(attack, labelPrefix, effectKey, onResolved) {
+    var handled = false;
+    function resolved() {
+      if (handled) return;
+      handled = true;
+      if (onResolved) onResolved();
+    }
+    // A reroll hands ownership of the queue to the replacement entry.
+    function handOver() { handled = true; }
+
     var label = (labelPrefix || '') + attack.name;
     // The entry appears first so manual mode has somewhere to put its input.
     var el = entry(label + (attack.range ? ' (' + attack.range + ')' : ''),
       '&mdash;', manual ? 'Roll your d20' : '', '');
     getD20(el, attack.attack, function (hit) {
       animateTotal(el, hit.total, 20, hit.modifier, function () {
-        resolveAttack(el, attack, hit, labelPrefix, effectKey);
-        if (onSettled) onSettled();
+        resolveAttack(el, attack, hit, labelPrefix, effectKey, resolved, handOver, onResolved);
       });
     });
   }
 
-  function resolveAttack(el, attack, hit, labelPrefix, effectKey) {
+  function resolveAttack(el, attack, hit, labelPrefix, effectKey,
+    resolved, handOver, onResolved) {
     var flag = hit.crit ? 'crit' : (hit.fumble ? 'fumble' : '');
     el.className = 'roll-entry' + (flag ? ' is-' + flag : '');
     setPart(el, 'roll-total', hit.total);
     setPart(el, 'roll-detail', describeD20(hit));
 
     function land(crit) {
-      getDice(el, attack.damage, crit, function (dmg) { showDamage(dmg, crit); });
+      getDice(el, attack.damage, crit, function (dmg) {
+        showDamage(dmg, crit);
+        resolved();
+      });
     }
 
     function showDamage(dmg, crit) {
@@ -597,8 +617,9 @@
     // Rerolling replaces this entry with a fresh attempt. Offered only while
     // the outcome is still open — never once damage has been rolled.
     var redo = function () {
+      handOver();
       if (el.parentNode) el.parentNode.removeChild(el);
-      rollAttack(attack, labelPrefix, effectKey);
+      rollAttack(attack, labelPrefix, effectKey, onResolved);
     };
 
     // A natural 20 always hits, so it resolves immediately and is not rerollable.
@@ -608,6 +629,7 @@
       setPart(el, 'roll-detail', describeD20(hit) + ' &nbsp;&middot;&nbsp; natural 1, miss');
       el.classList.add('is-miss');
       if (canReroll()) actionsRow(el, [rerollItem(redo)], function (item) { item.run(); });
+      resolved();
       return;
     }
 
@@ -622,6 +644,7 @@
       } else {
         el.classList.add('is-miss');
         setPart(el, 'roll-detail', describeD20(hit) + ' &nbsp;&middot;&nbsp; miss');
+        resolved();
       }
     });
   }

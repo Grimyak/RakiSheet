@@ -299,15 +299,22 @@ check('Advantage applied to that roll', topEntry().textContent.includes('[4, 18]
 check('Toggle resets to normal after', modeNow(), 'flat');
 
 // Only the first attack of a Flurry gets it — one Luck Point, one roll.
+// The second strike is queued until the first is resolved, so declare a miss
+// on the first to release it.
 clearLog();
 click(advBtn);
-script([20, 4], [20, 19], [20, 11]);
+script([20, 4], [20, 19]);
 click(flurry);
-check('Flurry: first attack had advantage',
-  logEl.children[1].textContent.includes('[4, 19]'), true);
-check('Flurry: second attack did not',
+check('Flurry: first strike had advantage',
+  topEntry().textContent.includes('[4, 19]'), true);
+check('Flurry: second strike is queued', logEl.children.length, 1);
+check('Toggle reset after the first roll', modeNow(), 'flat');
+
+script([20, 11]);
+click([...topEntry().querySelectorAll('.roll-action-btn')].find((b) => b.textContent === 'Miss'));
+check('Second strike released on resolution', logEl.children.length, 2);
+check('Flurry: second strike rolled flat',
   logEl.children[0].textContent.includes('['), false);
-check('Toggle still resets after a Flurry', modeNow(), 'flat');
 
 // --- Heroic Inspiration reroll ------------------------------------------------
 click(doc.getElementById('longRest'));
@@ -672,6 +679,54 @@ click(doc.querySelector('[data-roll-skill="stealth"]'));
 check('Skill roll used exactly its scripted die',
   topEntry().querySelector('.roll-total').textContent.trim(), '19');
 check('Animation consumed no extra dice', unscripted - beforeSpin, 0);
+
+// --- a queued strike waits for the previous one to be resolved ----------------
+click(autoBtn);
+api.setHP(27);
+
+// Ordinary roll: the second strike is held until Hit or Miss is declared.
+clearLog();
+script([20, 12]);
+click(flurry);
+check('Only the first strike appears', logEl.children.length, 1);
+check('First strike awaits a decision',
+  labelsOf(topEntry()).filter((l) => l === 'Hit' || l === 'Miss').length, 2);
+
+script([6, 3], [20, 9]);
+click([...topEntry().querySelectorAll('.roll-action-btn')].find((b) => b.textContent === 'Hit'));
+check('Confirming a hit releases the next strike', logEl.children.length, 2);
+check('Released strike rolled its own die',
+  logEl.children[0].querySelector('.roll-total').textContent.trim(), '15');
+
+// Declaring a miss releases it too.
+clearLog();
+script([20, 12]);
+click(flurry);
+script([20, 8]);
+click([...topEntry().querySelectorAll('.roll-action-btn')].find((b) => b.textContent === 'Miss'));
+check('Declaring a miss releases the next strike', logEl.children.length, 2);
+
+// A natural 1 decides itself, so it releases without a click.
+clearLog();
+script([20, 1], [20, 15]);
+click(flurry);
+check('Natural 1 releases the next strike on its own', logEl.children.length, 2);
+
+// A reroll hands the queue to its replacement rather than stalling or
+// double-releasing it.
+click(doc.getElementById('longRest')); // restore Inspiration
+api.setHP(27);
+clearLog();
+script([20, 12]);
+click(flurry);
+check('One strike before the reroll', logEl.children.length, 1);
+script([20, 16]);
+click([...topEntry().querySelectorAll('.roll-action-btn')].find((b) => b.textContent.includes('Reroll')));
+check('Reroll replaced the entry, queue still held', logEl.children.length, 1);
+check('Rerolled value shown', topEntry().querySelector('.roll-total').textContent.trim(), '22');
+script([6, 2], [20, 7]);
+click([...topEntry().querySelectorAll('.roll-action-btn')].find((b) => b.textContent === 'Hit'));
+check('Resolving the replacement releases the next strike', logEl.children.length, 2);
 
 Math.random = realRandom;
 
