@@ -218,7 +218,7 @@ details:not([open]) > summary.label{margin-bottom:0;border-bottom-color:var(--ru
   text-transform:uppercase;letter-spacing:.12em;font-size:.7rem;transition:all .15s;
 }
 .hp-quick button:hover,.rest-row button:hover{color:var(--ochre);border-color:var(--ochre)}
-.pip-row{display:inline-flex;gap:8px;vertical-align:middle}
+.pip-row{display:inline-flex;flex-wrap:wrap;gap:8px;vertical-align:middle}
 .pip{
   width:18px;height:18px;border-radius:50%;cursor:pointer;padding:0;border:0;flex:none;
   background:radial-gradient(circle at 32% 28%, #d9a544 0%, var(--ochre) 45%, #7a5b1e 100%);
@@ -262,8 +262,6 @@ details:not([open]) > summary.label{margin-bottom:0;border-bottom-color:var(--ru
 @media(max-width:640px){
   .ability-row{flex-direction:column;align-items:flex-start}
   .ability-btn{align-self:stretch;white-space:normal}
-  #inplay .cols{grid-template-columns:1fr}
-  .dice-card{grid-column:span 1}
 }
 .dice-card{grid-column:span 2;min-width:0}
 .dice-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
@@ -559,4 +557,38 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   }
   .roll-log-wrap .roll-log{max-height:none;flex:1 1 auto;overflow-y:auto}
   .roll-log-wrap .roll-entry{background:var(--field)}
+}
+
+/* ---------- narrow screens ---------- */
+/* Flex buttons were shrinking below the width of their own labels, so "Roll
+   for me" and "Reset to max" broke across three lines. Keeping the labels
+   unbreakable makes each button at least as wide as its text. */
+.hp-quick button,.rest-row button,.adv-btn,.mode-btn,.die-btn,
+.clear-history-btn,.ds-roll-btn{white-space:nowrap}
+.rest-row{flex-wrap:wrap}
+
+/* The In Play cards carry pips, buttons and dice, and get cramped long before
+   the rest of the sheet does. Give them a single column sooner. */
+@media(max-width:900px){
+  #inplay .cols{grid-template-columns:1fr}
+  .dice-card{grid-column:span 1}
+  .roll-log{max-height:360px}
+}
+
+/* Everything else follows at tablet width. */
+@media(max-width:720px){
+  .cols{grid-template-columns:1fr}
+  .adv-row{flex-wrap:wrap}
+  .adv-btn,.mode-btn{flex:1 1 auto}
+}
+
+@media(max-width:480px){
+  .wrap{padding:20px 12px 48px}
+  .card{padding:16px 14px}
+  .hp-input{width:88px;font-size:2.1rem}
+  .res-label{width:100%}
+  .attack-btn .atk-line{font-size:.78rem}
+  .roll-entry{padding:8px 10px}
+  .roll-entry .roll-total{font-size:1.3rem}
+  .roll-damage .dmg-value{font-size:1.9rem}
 }
