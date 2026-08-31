@@ -98,10 +98,13 @@ section > .label{display:block;border-bottom:1px solid var(--rule);padding-botto
 
 /* ---------- panels ---------- */
 .card{background:var(--field);border:1px solid var(--rule);padding:20px 22px;min-width:0}
-.card h3{font-size:1.12rem;color:var(--bone);margin-bottom:4px}
+.card h3{
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  font-size:1.12rem;color:var(--bone);margin-bottom:4px;
+}
 .card h3 .cost{
   font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;
-  letter-spacing:.16em;font-size:.66rem;color:var(--ochre);margin-left:10px;
+  letter-spacing:.16em;font-size:.66rem;color:var(--ochre);
   border:1px solid var(--ochre);padding:2px 7px;border-radius:2px;white-space:nowrap;
 }
 .card p{margin:8px 0 0;font-size:.94rem}
@@ -239,10 +242,13 @@ details:not([open]) > summary.label{margin-bottom:0;border-bottom-color:var(--ru
   padding:14px 0;border-bottom:1px solid var(--rule);
 }
 .ability-row:last-child{border-bottom:0}
-.ability-info h3{font-size:1rem;color:var(--bone);margin-bottom:3px}
+.ability-info h3{
+  display:flex;flex-direction:column;align-items:flex-start;gap:7px;
+  font-size:1rem;color:var(--bone);margin-bottom:3px;
+}
 .ability-info h3 .cost{
   font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.16em;font-size:.62rem;
-  color:var(--ochre);margin-left:10px;border:1px solid var(--ochre);padding:2px 7px;border-radius:2px;white-space:nowrap;
+  color:var(--ochre);border:1px solid var(--ochre);padding:2px 7px;border-radius:2px;white-space:nowrap;
 }
 .ability-info p{margin:4px 0 0;font-size:.9rem;color:var(--bone-dim)}
 .ability-btn{
