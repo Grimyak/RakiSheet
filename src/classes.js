@@ -89,7 +89,7 @@ export const SPECIES = {
     speed: 30,
     // Resourceful grants Heroic Inspiration on every long rest.
     resources: () => [
-      { key: 'inspiration', label: 'Heroic Inspiration', max: 1, recovery: 'long' },
+      { key: 'inspiration', label: 'Inspiration', full: 'Heroic Inspiration', max: 1, recovery: 'long' },
     ],
   },
 };

@@ -180,7 +180,7 @@ function proficiencyList(c) {
 
 function recoveryList(c) {
   const rows = c.resources.map((r) => [
-    r.label,
+    r.full ?? r.label,
     r.recovery === 'short' ? 'Short or long rest' : 'Long rest',
   ]);
   rows.push(['Hit Dice', '1 per long rest']);
@@ -271,7 +271,7 @@ ${actionRows(c, t)}
           <input type="number" id="hpAmount" min="1" value="1" aria-label="Amount to apply">
           <button type="button" id="hpDamage">Damage</button>
           <button type="button" id="hpHeal">Heal</button>
-          <button type="button" id="hpReset">Reset to max</button>
+          <button type="button" id="hpReset" title="Reset to maximum">Reset</button>
         </div>
         <div class="dead-notice" id="deadNotice" hidden></div>
         <div class="death-saves" id="deathSaves" hidden>

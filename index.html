@@ -616,6 +616,49 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   .play-panel .roll-log-head{margin-top:14px}
 }
 
+/* ---------- panel density ---------- */
+/* The panel repeats a lot of chrome in a narrow column: block headings, row
+   borders, generous padding. Tighten all of it inside the panel only, so the
+   main sheet keeps its airier rhythm. */
+.play-panel{padding:14px}
+.play-panel .pp-block{padding:12px 13px}
+.play-panel .pp-block .kind{margin-bottom:8px;font-size:.6rem;letter-spacing:.16em}
+
+/* Hit points: one compact control row rather than three stacked ones. */
+.play-panel .hp-row{margin:2px 0 10px}
+.play-panel .hp-input{width:92px;font-size:2rem;padding:2px 4px}
+.play-panel .hp-quick{gap:6px}
+.play-panel .hp-quick input{width:48px;padding:5px 6px}
+.play-panel .hp-quick button{padding:6px 10px;font-size:.66rem}
+
+/* Resources: shorter rows, smaller pips, count tucked to the right. */
+.play-panel .resource-row{padding:5px 0;gap:8px}
+.play-panel .res-label{width:74px;font-size:.66rem}
+.play-panel .pip{width:14px;height:14px}
+.play-panel .pip-row{gap:6px}
+.play-panel .pip-count{margin-left:auto;font-size:.76rem}
+.play-panel .rest-row{margin-top:10px;gap:6px}
+.play-panel .rest-row button{padding:6px 10px;font-size:.66rem}
+
+/* Dice: one row of six rather than two rows of large buttons. */
+.play-panel .dice-buttons{gap:5px}
+.play-panel .die-btn{flex:1 1 auto;padding:6px 4px;font-size:.68rem;letter-spacing:.06em}
+
+/* Roll log: the entries carry the most repetition, so trim them hardest. */
+.play-panel .roll-log-head{margin:14px 0 8px;padding-bottom:8px}
+.play-panel .roll-entry{padding:7px 10px}
+.play-panel .roll-entry .roll-label{font-size:.66rem;letter-spacing:.06em}
+.play-panel .roll-entry .roll-total{font-size:1.35rem}
+.play-panel .roll-entry .roll-detail{font-size:.72rem}
+.play-panel .roll-actions{gap:5px;margin-top:6px}
+.play-panel .roll-action-btn{padding:3px 9px;font-size:.62rem}
+.play-panel .roll-damage{margin-top:7px;padding:8px 10px;gap:8px}
+.play-panel .roll-damage .dmg-value{font-size:1.8rem}
+.play-panel .roll-damage .dmg-dice{font-size:.7rem}
+.play-panel .roll-effect{margin-top:6px;padding-top:6px;font-size:.72rem}
+.play-panel .death-saves{margin-top:12px;padding-top:10px}
+.play-panel .ds-roll-btn{margin-top:10px;padding:7px 12px;font-size:.68rem}
+
 </style>
 </head>
 <body>
@@ -973,7 +1016,7 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
           <input type="number" id="hpAmount" min="1" value="1" aria-label="Amount to apply">
           <button type="button" id="hpDamage">Damage</button>
           <button type="button" id="hpHeal">Heal</button>
-          <button type="button" id="hpReset">Reset to max</button>
+          <button type="button" id="hpReset" title="Reset to maximum">Reset</button>
         </div>
         <div class="dead-notice" id="deadNotice" hidden></div>
         <div class="death-saves" id="deathSaves" hidden>
@@ -987,7 +1030,7 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
       <div class="pp-block">
         <span class="kind">Resources</span>
         <div class="resource-row">
-          <span class="res-label">Heroic Inspiration</span>
+          <span class="res-label">Inspiration</span>
           <div class="pip-row" data-pool="inspiration"></div><span class="pip-count" data-count="inspiration">1/1</span>
         </div>
         <div class="resource-row">
@@ -1260,7 +1303,7 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
     aria-label="View a printable character sheet">Print Version</button>
 
 </div>
-<script>window.SHEET_CONFIG = {"slug":"raki","maxHP":27,"pools":[{"key":"inspiration","max":1,"recovery":"long"},{"key":"focus","max":3,"recovery":"short"},{"key":"luck","max":2,"recovery":"long"},{"key":"daggers","max":7,"recovery":"long"}],"attacks":[{"name":"Unarmed Strike","attack":6,"damage":"1d6+4","type":"bludgeoning","range":null,"pool":null,"amount":0},{"name":"Quarterstaff","attack":6,"damage":"1d6+4","type":"bludgeoning","range":null,"pool":null,"amount":0},{"name":"Dagger","attack":6,"damage":"1d4+4","type":"piercing","range":null,"pool":null,"amount":0},{"name":"Dagger (thrown)","attack":6,"damage":"1d4+4","type":"piercing","range":"20/60 ft","pool":"daggers","amount":1}],"unarmed":{"name":"Unarmed Strike","attack":6,"damage":"1d6+4","type":"bludgeoning","range":null,"pool":null,"amount":0},"checks":{"initiative":4,"abilities":[{"key":"str","name":"Strength","value":-2},{"key":"dex","name":"Dexterity","value":4},{"key":"con","name":"Constitution","value":1},{"key":"int","name":"Intelligence","value":0},{"key":"wis","name":"Wisdom","value":3},{"key":"cha","name":"Charisma","value":0}],"saves":[{"key":"str","name":"Strength","value":0},{"key":"dex","name":"Dexterity","value":6},{"key":"con","name":"Constitution","value":1},{"key":"int","name":"Intelligence","value":0},{"key":"wis","name":"Wisdom","value":3},{"key":"cha","name":"Charisma","value":0}],"skills":[{"key":"acrobatics","name":"Acrobatics","value":6},{"key":"animalHandling","name":"Animal Handling","value":3},{"key":"arcana","name":"Arcana","value":0},{"key":"athletics","name":"Athletics","value":-2},{"key":"deception","name":"Deception","value":0},{"key":"history","name":"History","value":0},{"key":"insight","name":"Insight","value":5},{"key":"intimidation","name":"Intimidation","value":0},{"key":"investigation","name":"Investigation","value":0},{"key":"medicine","name":"Medicine","value":3},{"key":"nature","name":"Nature","value":0},{"key":"perception","name":"Perception","value":5},{"key":"performance","name":"Performance","value":0},{"key":"persuasion","name":"Persuasion","value":0},{"key":"religion","name":"Religion","value":2},{"key":"sleightOfHand","name":"Sleight of Hand","value":4},{"key":"stealth","name":"Stealth","value":6},{"key":"survival","name":"Survival","value":3}]},"actions":[{"name":"Flurry of Blows","pool":"focus","amount":1,"special":null,"roll":null,"attacks":2,"apply":null,"effects":"openHand"},{"name":"Patient Defense","pool":"focus","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Step of the Wind","pool":"focus","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Deflect Attacks · Redirect","pool":"focus","amount":1,"special":null,"roll":"1d10+7","attacks":0,"apply":null,"effects":null},{"name":"Lucky","pool":"luck","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Uncanny Metabolism","pool":null,"amount":0,"special":"refillFocus","roll":"1d6+3","attacks":0,"apply":"heal","effects":null}],"effects":{"openHand":[{"name":"Topple","save":"Dex","dc":"13","onFail":"knocked Prone — advantage for everyone in melee"},{"name":"Push","save":"Str","dc":"13","onFail":"shoved 15 ft away"},{"name":"Addle","save":null,"dc":null,"onFail":"no Opportunity Attacks until the start of its next turn"}]}};</script>
+<script>window.SHEET_CONFIG = {"slug":"raki","maxHP":27,"pools":[{"key":"inspiration","max":1,"recovery":"long"},{"key":"focus","max":3,"recovery":"short"},{"key":"luck","max":2,"recovery":"long"},{"key":"daggers","max":7,"recovery":"long"}],"attacks":[{"name":"Unarmed Strike","attack":6,"damage":"1d6+4","type":"bludgeoning","range":null,"pool":null,"amount":0},{"name":"Quarterstaff","attack":6,"damage":"1d6+4","type":"bludgeoning","range":null,"pool":null,"amount":0},{"name":"Dagger","attack":6,"damage":"1d4+4","type":"piercing","range":null,"pool":null,"amount":0},{"name":"Dagger (thrown)","attack":6,"damage":"1d4+4","type":"piercing","range":"20/60 ft","pool":"daggers","amount":1}],"unarmed":{"name":"Unarmed Strike","attack":6,"damage":"1d6+4","type":"bludgeoning","range":null,"pool":null,"amount":0},"checks":{"initiative":4,"abilities":[{"key":"str","name":"Strength","value":-2},{"key":"dex","name":"Dexterity","value":4},{"key":"con","name":"Constitution","value":1},{"key":"int","name":"Intelligence","value":0},{"key":"wis","name":"Wisdom","value":3},{"key":"cha","name":"Charisma","value":0}],"saves":[{"key":"str","name":"Strength","value":0},{"key":"dex","name":"Dexterity","value":6},{"key":"con","name":"Constitution","value":1},{"key":"int","name":"Intelligence","value":0},{"key":"wis","name":"Wisdom","value":3},{"key":"cha","name":"Charisma","value":0}],"skills":[{"key":"acrobatics","name":"Acrobatics","value":6},{"key":"animalHandling","name":"Animal Handling","value":3},{"key":"arcana","name":"Arcana","value":0},{"key":"athletics","name":"Athletics","value":-2},{"key":"deception","name":"Deception","value":0},{"key":"history","name":"History","value":0},{"key":"insight","name":"Insight","value":5},{"key":"intimidation","name":"Intimidation","value":0},{"key":"investigation","name":"Investigation","value":0},{"key":"medicine","name":"Medicine","value":3},{"key":"nature","name":"Nature","value":0},{"key":"perception","name":"Perception","value":5},{"key":"performance","name":"Performance","value":0},{"key":"persuasion","name":"Persuasion","value":0},{"key":"religion","name":"Religion","value":2},{"key":"sleightOfHand","name":"Sleight of Hand","value":4},{"key":"stealth","name":"Stealth","value":6},{"key":"survival","name":"Survival","value":3}]},"actions":[{"name":"Flurry of Blows","logName":"Flurry","pool":"focus","amount":1,"special":null,"roll":null,"attacks":2,"apply":null,"effects":"openHand"},{"name":"Patient Defense","logName":"Patient Defense","pool":"focus","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Step of the Wind","logName":"Step of the Wind","pool":"focus","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Deflect Attacks · Redirect","logName":"Deflect Attacks · Redirect","pool":"focus","amount":1,"special":null,"roll":"1d10+7","attacks":0,"apply":null,"effects":null},{"name":"Lucky","logName":"Lucky","pool":"luck","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Uncanny Metabolism","logName":"Uncanny Metabolism","pool":null,"amount":0,"special":"refillFocus","roll":"1d6+3","attacks":0,"apply":"heal","effects":null}],"effects":{"openHand":[{"name":"Topple","save":"Dex","dc":"13","onFail":"knocked Prone — advantage for everyone in melee"},{"name":"Push","save":"Str","dc":"13","onFail":"shoved 15 ft away"},{"name":"Addle","save":null,"dc":null,"onFail":"no Opportunity Attacks until the start of its next turn"}]}};</script>
 <script>
 // Dice evaluation. Pure functions with an injectable RNG so they can be tested.
 //
@@ -2018,7 +2061,7 @@ function rollD20(modifier, mode, rng) {
         if (a.attacks && config.unarmed) {
           // Each strike resolves separately and carries its own rider effect.
           for (var i = 0; i < a.attacks; i++) {
-            rollAttack(config.unarmed, a.name + ' ' + (i + 1) + ': ', a.effects);
+            rollAttack(config.unarmed, (a.logName || a.name) + ' ' + (i + 1) + ' · ', a.effects);
           }
           return;
         }

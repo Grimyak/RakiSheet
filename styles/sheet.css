@@ -608,3 +608,46 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   .play-panel .roll-log{max-height:none;flex:1 1 auto;overflow-y:auto}
   .play-panel .roll-log-head{margin-top:14px}
 }
+
+/* ---------- panel density ---------- */
+/* The panel repeats a lot of chrome in a narrow column: block headings, row
+   borders, generous padding. Tighten all of it inside the panel only, so the
+   main sheet keeps its airier rhythm. */
+.play-panel{padding:14px}
+.play-panel .pp-block{padding:12px 13px}
+.play-panel .pp-block .kind{margin-bottom:8px;font-size:.6rem;letter-spacing:.16em}
+
+/* Hit points: one compact control row rather than three stacked ones. */
+.play-panel .hp-row{margin:2px 0 10px}
+.play-panel .hp-input{width:92px;font-size:2rem;padding:2px 4px}
+.play-panel .hp-quick{gap:6px}
+.play-panel .hp-quick input{width:48px;padding:5px 6px}
+.play-panel .hp-quick button{padding:6px 10px;font-size:.66rem}
+
+/* Resources: shorter rows, smaller pips, count tucked to the right. */
+.play-panel .resource-row{padding:5px 0;gap:8px}
+.play-panel .res-label{width:74px;font-size:.66rem}
+.play-panel .pip{width:14px;height:14px}
+.play-panel .pip-row{gap:6px}
+.play-panel .pip-count{margin-left:auto;font-size:.76rem}
+.play-panel .rest-row{margin-top:10px;gap:6px}
+.play-panel .rest-row button{padding:6px 10px;font-size:.66rem}
+
+/* Dice: one row of six rather than two rows of large buttons. */
+.play-panel .dice-buttons{gap:5px}
+.play-panel .die-btn{flex:1 1 auto;padding:6px 4px;font-size:.68rem;letter-spacing:.06em}
+
+/* Roll log: the entries carry the most repetition, so trim them hardest. */
+.play-panel .roll-log-head{margin:14px 0 8px;padding-bottom:8px}
+.play-panel .roll-entry{padding:7px 10px}
+.play-panel .roll-entry .roll-label{font-size:.66rem;letter-spacing:.06em}
+.play-panel .roll-entry .roll-total{font-size:1.35rem}
+.play-panel .roll-entry .roll-detail{font-size:.72rem}
+.play-panel .roll-actions{gap:5px;margin-top:6px}
+.play-panel .roll-action-btn{padding:3px 9px;font-size:.62rem}
+.play-panel .roll-damage{margin-top:7px;padding:8px 10px;gap:8px}
+.play-panel .roll-damage .dmg-value{font-size:1.8rem}
+.play-panel .roll-damage .dmg-dice{font-size:.7rem}
+.play-panel .roll-effect{margin-top:6px;padding-top:6px;font-size:.72rem}
+.play-panel .death-saves{margin-top:12px;padding-top:10px}
+.play-panel .ds-roll-btn{margin-top:10px;padding:7px 12px;font-size:.68rem}

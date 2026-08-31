@@ -65,6 +65,7 @@ const config = {
   },
   actions: c.actions.map((a) => ({
     name: a.name,
+    logName: a.logName ?? a.name,
     pool: a.pool ?? null,
     amount: a.amount ?? 0,
     special: a.special ?? null,

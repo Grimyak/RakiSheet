@@ -269,6 +269,7 @@ export default {
   actions: [
     {
       name: 'Flurry of Blows',
+      logName: 'Flurry',
       pool: 'focus',
       amount: 1,
       attacks: 2,

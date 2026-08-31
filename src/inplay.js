@@ -691,7 +691,7 @@
         if (a.attacks && config.unarmed) {
           // Each strike resolves separately and carries its own rider effect.
           for (var i = 0; i < a.attacks; i++) {
-            rollAttack(config.unarmed, a.name + ' ' + (i + 1) + ': ', a.effects);
+            rollAttack(config.unarmed, (a.logName || a.name) + ' ' + (i + 1) + ' · ', a.effects);
           }
           return;
         }

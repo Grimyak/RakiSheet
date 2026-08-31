@@ -118,7 +118,7 @@ function resourceList(c) {
     const rest = r.recovery === 'short' ? 'short/long rest' : 'long rest';
     const dc = r.key === 'focus' && c.classDerived.focusSaveDC
       ? `, DC ${c.classDerived.focusSaveDC}` : '';
-    return [`${r.label} Points (${rest}${dc})`, r.max];
+    return [`${r.full ?? r.label} Points (${rest}${dc})`, r.max];
   });
   // One-shot features that recharge on a rest but have no pip pool of their own.
   if (c.classDerived.uncannyMetabolismHeal) {
