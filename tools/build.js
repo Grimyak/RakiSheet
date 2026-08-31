@@ -91,12 +91,9 @@ const config = {
 
 // The print sheet comes first in source order, matching the original: the
 // print stylesheet hides .wrap and reveals .print-sheet.
-const body = [
-  '<button type="button" id="printBtn" class="print-btn" '
-  + 'aria-label="View a printable character sheet">Print Version</button>',
-  renderPrint(c),
-  renderScreen(c),
-].join('\n\n');
+// The print sheet comes first in source order: the print stylesheet hides
+// .wrap and reveals .print-sheet.
+const body = [renderPrint(c), renderScreen(c)].join('\n\n');
 
 // A token that never resolved is a typo in a character file; fail loudly
 // rather than shipping "{unarmedAtack}" onto the page.

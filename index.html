@@ -306,13 +306,12 @@ details:not([open]) > summary.label{margin-bottom:0;border-bottom-color:var(--ru
 .clear-history-btn:hover{color:var(--ochre);border-color:var(--ochre)}
 
 .print-btn{
-  position:fixed;top:18px;right:18px;z-index:50;
+  display:block;margin:44px auto 0;
   background:var(--panel);border:1px solid var(--rule);color:var(--bone-dim);
-  padding:8px 16px;cursor:pointer;border-radius:2px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  padding:10px 22px;cursor:pointer;border-radius:2px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
   font-weight:500;text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;transition:all .15s;
 }
 .print-btn:hover{color:var(--ochre);border-color:var(--ochre)}
-@media(max-width:480px){.print-btn{top:10px;right:10px;padding:6px 10px;font-size:.62rem}}
 
 .print-sheet{display:none}
 @media print{
@@ -567,14 +566,11 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   }
   .roll-log-wrap .roll-log{max-height:none;flex:1 1 auto;overflow-y:auto}
   .roll-log-wrap .roll-entry{background:var(--field)}
-  .print-btn{right:372px}
 }
 
 </style>
 </head>
 <body>
-<button type="button" id="printBtn" class="print-btn" aria-label="View a printable character sheet">Print Version</button>
-
 <div class="print-sheet" id="printSheet">
   <div class="ps-page">
     <div class="ps-header">
@@ -1212,6 +1208,9 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   <figure class="closing">
     <img src="assets/raki-closing.jpg" alt="">
   </figure>
+
+  <button type="button" id="printBtn" class="print-btn"
+    aria-label="View a printable character sheet">Print Version</button>
 
 </div>
 <script>window.SHEET_CONFIG = {"slug":"raki","maxHP":27,"pools":[{"key":"inspiration","max":1,"recovery":"long"},{"key":"focus","max":3,"recovery":"short"},{"key":"luck","max":2,"recovery":"long"},{"key":"daggers","max":7,"recovery":"long"}],"attacks":[{"name":"Unarmed Strike","attack":6,"damage":"1d6+4","type":"bludgeoning","range":null,"pool":null,"amount":0},{"name":"Quarterstaff","attack":6,"damage":"1d6+4","type":"bludgeoning","range":null,"pool":null,"amount":0},{"name":"Dagger","attack":6,"damage":"1d4+4","type":"piercing","range":null,"pool":null,"amount":0},{"name":"Dagger (thrown)","attack":6,"damage":"1d4+4","type":"piercing","range":"20/60 ft","pool":"daggers","amount":1}],"unarmed":{"name":"Unarmed Strike","attack":6,"damage":"1d6+4","type":"bludgeoning","range":null,"pool":null,"amount":0},"checks":{"initiative":4,"abilities":[{"key":"str","name":"Strength","value":-2},{"key":"dex","name":"Dexterity","value":4},{"key":"con","name":"Constitution","value":1},{"key":"int","name":"Intelligence","value":0},{"key":"wis","name":"Wisdom","value":3},{"key":"cha","name":"Charisma","value":0}],"saves":[{"key":"str","name":"Strength","value":0},{"key":"dex","name":"Dexterity","value":6},{"key":"con","name":"Constitution","value":1},{"key":"int","name":"Intelligence","value":0},{"key":"wis","name":"Wisdom","value":3},{"key":"cha","name":"Charisma","value":0}],"skills":[{"key":"acrobatics","name":"Acrobatics","value":6},{"key":"animalHandling","name":"Animal Handling","value":3},{"key":"arcana","name":"Arcana","value":0},{"key":"athletics","name":"Athletics","value":-2},{"key":"deception","name":"Deception","value":0},{"key":"history","name":"History","value":0},{"key":"insight","name":"Insight","value":5},{"key":"intimidation","name":"Intimidation","value":0},{"key":"investigation","name":"Investigation","value":0},{"key":"medicine","name":"Medicine","value":3},{"key":"nature","name":"Nature","value":0},{"key":"perception","name":"Perception","value":5},{"key":"performance","name":"Performance","value":0},{"key":"persuasion","name":"Persuasion","value":0},{"key":"religion","name":"Religion","value":2},{"key":"sleightOfHand","name":"Sleight of Hand","value":4},{"key":"stealth","name":"Stealth","value":6},{"key":"survival","name":"Survival","value":3}]},"actions":[{"name":"Flurry of Blows","pool":"focus","amount":1,"special":null,"roll":null,"attacks":2,"apply":null,"effects":"openHand"},{"name":"Patient Defense","pool":"focus","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Step of the Wind","pool":"focus","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Deflect Attacks · Redirect","pool":"focus","amount":1,"special":null,"roll":"1d10+7","attacks":0,"apply":null,"effects":null},{"name":"Lucky","pool":"luck","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Uncanny Metabolism","pool":null,"amount":0,"special":"refillFocus","roll":"1d6+3","attacks":0,"apply":"heal","effects":null}],"effects":{"openHand":[{"name":"Topple","save":"Dex","dc":"13","onFail":"knocked Prone — advantage for everyone in melee"},{"name":"Push","save":"Str","dc":"13","onFail":"shoved 15 ft away"},{"name":"Addle","save":null,"dc":null,"onFail":"no Opportunity Attacks until the start of its next turn"}]}};</script>

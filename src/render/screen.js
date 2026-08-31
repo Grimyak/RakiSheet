@@ -404,5 +404,8 @@ ${each([c.prose.backstory, c.prose.allies, c.prose.organizations, c.prose.enemie
     <img src="assets/raki-closing.jpg" alt="">
   </figure>
 
+  <button type="button" id="printBtn" class="print-btn"
+    aria-label="View a printable character sheet">Print Version</button>
+
 </div>`;
 }

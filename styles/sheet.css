@@ -299,13 +299,12 @@ details:not([open]) > summary.label{margin-bottom:0;border-bottom-color:var(--ru
 .clear-history-btn:hover{color:var(--ochre);border-color:var(--ochre)}
 
 .print-btn{
-  position:fixed;top:18px;right:18px;z-index:50;
+  display:block;margin:44px auto 0;
   background:var(--panel);border:1px solid var(--rule);color:var(--bone-dim);
-  padding:8px 16px;cursor:pointer;border-radius:2px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  padding:10px 22px;cursor:pointer;border-radius:2px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
   font-weight:500;text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;transition:all .15s;
 }
 .print-btn:hover{color:var(--ochre);border-color:var(--ochre)}
-@media(max-width:480px){.print-btn{top:10px;right:10px;padding:6px 10px;font-size:.62rem}}
 
 .print-sheet{display:none}
 @media print{
@@ -560,5 +559,4 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   }
   .roll-log-wrap .roll-log{max-height:none;flex:1 1 auto;overflow-y:auto}
   .roll-log-wrap .roll-entry{background:var(--field)}
-  .print-btn{right:372px}
 }
