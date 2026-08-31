@@ -551,7 +551,10 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 /* Below this width there is no room beside the sheet, so the log stays in the
    normal flow where it already sits. */
 @media (min-width:1500px){
-  .wrap{margin-right:372px}
+  /* Reserve the panel's gutter on the body, so .wrap stays centred within
+     what is left. Setting margin-right on .wrap itself would leave its
+     margin-left:auto to absorb all the slack, anchoring content to the right. */
+  body{padding-right:372px}
   .roll-log-wrap{
     position:fixed;top:20px;right:20px;width:332px;
     max-height:calc(100vh - 40px);display:flex;flex-direction:column;
