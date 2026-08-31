@@ -294,14 +294,6 @@ ${attacksCard(c, t)}
       </div>
     </div>
 
-    <div class="roll-log-wrap">
-      <div class="roll-log-head">
-        <span class="label">Roll Log</span>
-        <button type="button" id="clearRollLog" class="clear-history-btn">Clear</button>
-      </div>
-      <div class="roll-log" id="rollLog" aria-live="polite"></div>
-    </div>
-
     <div class="ability-list">
       <span class="label" style="display:block;margin:26px 0 10px">Abilities</span>
 ${actionRows(c, t)}
@@ -313,6 +305,14 @@ ${actionRows(c, t)}
     </div>
     </details>
   </section>
+
+  <div class="roll-log-wrap">
+    <div class="roll-log-head">
+      <span class="label">Roll Log</span>
+      <button type="button" id="clearRollLog" class="clear-history-btn">Clear</button>
+    </div>
+    <div class="roll-log" id="rollLog" aria-live="polite"></div>
+  </div>
 
 ${featureSection('attacks', c.features, t)}
 ${featureSection('openHand', c.features, t)}

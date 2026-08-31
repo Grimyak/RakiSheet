@@ -542,3 +542,23 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 .attack-btn:disabled{opacity:.4;cursor:default}
 .attack-btn:disabled:hover{border-color:var(--rule)}
 .attack-btn:disabled .atk-name{color:var(--bone-dim)}
+
+/* ---------- floating roll log on wide screens ---------- */
+/* Below this width there is no room beside the sheet, so the log stays in the
+   normal flow where it already sits. */
+@media (min-width:1500px){
+  .wrap{margin-right:372px}
+  .roll-log-wrap{
+    position:fixed;top:20px;right:20px;width:332px;
+    max-height:calc(100vh - 40px);display:flex;flex-direction:column;
+    background:var(--panel);border:1px solid var(--rule);border-radius:2px;
+    padding:14px 16px;margin-top:0;z-index:40;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .roll-log-wrap .roll-log-head{
+    margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--rule);
+  }
+  .roll-log-wrap .roll-log{max-height:none;flex:1 1 auto;overflow-y:auto}
+  .roll-log-wrap .roll-entry{background:var(--field)}
+  .print-btn{right:372px}
+}
