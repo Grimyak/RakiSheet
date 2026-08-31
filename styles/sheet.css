@@ -651,3 +651,6 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 .play-panel .roll-effect{margin-top:6px;padding-top:6px;font-size:.72rem}
 .play-panel .death-saves{margin-top:12px;padding-top:10px}
 .play-panel .ds-roll-btn{margin-top:10px;padding:7px 12px;font-size:.68rem}
+
+/* A roll mid-spin reads as provisional until it settles. */
+.roll-entry.is-rolling .roll-total{opacity:.55}

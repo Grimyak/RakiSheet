@@ -659,6 +659,9 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 .play-panel .death-saves{margin-top:12px;padding-top:10px}
 .play-panel .ds-roll-btn{margin-top:10px;padding:7px 12px;font-size:.68rem}
 
+/* A roll mid-spin reads as provisional until it settles. */
+.roll-entry.is-rolling .roll-total{opacity:.55}
+
 </style>
 </head>
 <body>
@@ -1676,6 +1679,48 @@ function rollD20(modifier, mode, rng) {
 
   var mode = 'flat'; // 'adv' | 'dis' | 'flat'
 
+  // The settle animation must not touch Math.random: that would consume real
+  // dice, break the "manual mode rolls nothing" guarantee, and make scripted
+  // tests non-deterministic. These are throwaway display frames, so a plain
+  // counter is enough.
+  var spinSeed = 1;
+  function spinValue(max) {
+    spinSeed = (spinSeed * 1103515245 + 12345) & 0x7fffffff;
+    return (spinSeed % max) + 1;
+  }
+
+  var SPIN = [35, 40, 50, 60, 80, 110, 150, 200];
+  var prefersReducedMotion = window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /**
+   * Spin an entry's headline before settling on its real total.
+   *
+   * Skipped when the player typed the number themselves, and when the system
+   * asks for reduced motion. `done` always runs, so callers can chain on it.
+   */
+  function animateTotal(el, finalTotal, sides, modifier, done) {
+    var target = el.querySelector('.roll-total');
+    if (!target || manual || prefersReducedMotion) {
+      if (target) target.textContent = finalTotal;
+      done();
+      return;
+    }
+    el.classList.add('is-rolling');
+    var step = 0;
+    (function tick() {
+      if (step >= SPIN.length) {
+        target.textContent = finalTotal;
+        el.classList.remove('is-rolling');
+        done();
+        return;
+      }
+      target.textContent = spinValue(sides) + modifier;
+      setTimeout(tick, SPIN[step]);
+      step++;
+    })();
+  }
+
   // parseDice / rollDice / rollD20 come from src/dice.js, inlined above.
   function rollAttackDamage(expr, crit) { return rollDice(expr, crit); }
 
@@ -1882,13 +1927,16 @@ function rollD20(modifier, mode, rng) {
    * before rolling damage — except on a natural 20 or 1, which by the 2024
    * rules always hit and always miss respectively.
    */
-  function rollAttack(attack, labelPrefix, effectKey) {
+  function rollAttack(attack, labelPrefix, effectKey, onSettled) {
     var label = (labelPrefix || '') + attack.name;
     // The entry appears first so manual mode has somewhere to put its input.
     var el = entry(label + (attack.range ? ' (' + attack.range + ')' : ''),
       '&mdash;', manual ? 'Roll your d20' : '', '');
     getD20(el, attack.attack, function (hit) {
-      resolveAttack(el, attack, hit, labelPrefix, effectKey);
+      animateTotal(el, hit.total, 20, hit.modifier, function () {
+        resolveAttack(el, attack, hit, labelPrefix, effectKey);
+        if (onSettled) onSettled();
+      });
     });
   }
 
@@ -2016,6 +2064,7 @@ function rollD20(modifier, mode, rng) {
   function rollCheck(found, suffix) {
     var row = entry(found.name + suffix, '&mdash;', manual ? 'Roll your d20' : '', '');
     getD20(row, found.value, function (r) {
+      animateTotal(row, r.total, 20, r.modifier, function () {
       row.className = 'roll-entry' + (r.crit ? ' is-crit' : (r.fumble ? ' is-fumble' : ''));
       setPart(row, 'roll-total', r.total);
       setPart(row, 'roll-detail', describeD20(r));
@@ -2024,6 +2073,7 @@ function rollD20(modifier, mode, rng) {
         if (row.parentNode) row.parentNode.removeChild(row);
         rollCheck(found, suffix);
       })], function (item) { item.run(); });
+      });
     });
   }
 
@@ -2060,9 +2110,17 @@ function rollD20(modifier, mode, rng) {
 
         if (a.attacks && config.unarmed) {
           // Each strike resolves separately and carries its own rider effect.
-          for (var i = 0; i < a.attacks; i++) {
-            rollAttack(config.unarmed, (a.logName || a.name) + ' ' + (i + 1) + ' · ', a.effects);
-          }
+          // They are chained rather than fired at once, so one appears and
+          // settles before the next shows up.
+          (function next(i) {
+            if (i >= a.attacks) return;
+            rollAttack(
+              config.unarmed,
+              (a.logName || a.name) + ' ' + (i + 1) + ' · ',
+              a.effects,
+              function () { next(i + 1); }
+            );
+          })(0);
           return;
         }
         if (a.roll) {
@@ -2090,8 +2148,10 @@ function rollD20(modifier, mode, rng) {
       if (!api || !api.isDying()) return;
       var pending = entry('Death Save', '&mdash;', manual ? 'Roll your d20' : '', '');
       getD20(pending, 0, function (r) {
-        if (pending.parentNode) pending.parentNode.removeChild(pending);
-        resolveDeathSave(api, r);
+        animateTotal(pending, r.natural, 20, 0, function () {
+          if (pending.parentNode) pending.parentNode.removeChild(pending);
+          resolveDeathSave(api, r);
+        });
       });
   }
 
@@ -2171,6 +2231,13 @@ function rollD20(modifier, mode, rng) {
   var rollToken = 0;
   var settleDelays = [40, 40, 50, 60, 80, 100, 130, 170, 220];
 
+  // Display frames only; see the note on spinValue above.
+  var spin = 1;
+  function spinValue(max) {
+    spin = (spin * 1103515245 + 12345) & 0x7fffffff;
+    return (spin % max) + 1;
+  }
+
   function logDie(label, value, sides) {
     var el = document.createElement('div');
     el.className = 'roll-entry is-die';
@@ -2197,7 +2264,7 @@ function rollD20(modifier, mode, rng) {
       var myToken = rollToken;
       dieButtons.forEach(function (b) { b.disabled = true; });
 
-      var el = logDie(label, Math.floor(Math.random() * sides) + 1, sides);
+      var el = logDie(label, spinValue(sides), sides);
       var totalEl = el.querySelector('.roll-total');
       var step = 0;
 
@@ -2210,7 +2277,7 @@ function rollD20(modifier, mode, rng) {
           dieButtons.forEach(function (b) { b.disabled = false; });
           return;
         }
-        totalEl.textContent = Math.floor(Math.random() * sides) + 1;
+        totalEl.textContent = spinValue(sides);
         setTimeout(tick, settleDelays[step]);
         step++;
       })();

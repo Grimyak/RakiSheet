@@ -30,7 +30,11 @@ Object.defineProperty(globalThis, 'localStorage', {
   },
 });
 globalThis.window = globalThis;
-globalThis.matchMedia = () => ({ matches: false });
+// Run as a reduced-motion user. The settle animation is cosmetic and defers
+// every result behind timers; skipping it keeps assertions synchronous and
+// still exercises the same code paths, since animateTotal always invokes its
+// completion callback either way.
+globalThis.matchMedia = () => ({ matches: true });
 
 // A scripted dice sequence, so rolls are deterministic.
 //
@@ -605,10 +609,8 @@ check('Shown again when In Play opens', panel.className.includes('is-hidden'), f
 // --- ad-hoc dice land in the roll log -----------------------------------------
 click(autoBtn);
 clearLog();
-const settle = () => new Promise((r) => setTimeout(r, 1200));
 script([20, 17]);
 click(doc.querySelector('.die-btn[data-sides="20"]'));
-await settle();
 check('Die roll logged', logEl.children.length, 1);
 check('Die entry labelled', topEntry().querySelector('.roll-label').textContent, 'D20');
 check('Die value shown', topEntry().querySelector('.roll-total').textContent.trim(), '17');
@@ -617,7 +619,6 @@ check('Die entry marked as a die', topEntry().className.includes('is-die'), true
 // Total sums only the ad-hoc dice, ignoring attacks and saves in the same log.
 script([6, 4]);
 click(doc.querySelector('.die-btn[data-sides="6"]'));
-await settle();
 api.setHP(27);
 script([20, 11]);
 click(doc.querySelector('[data-roll-skill="stealth"]'));
@@ -639,6 +640,38 @@ click(manualBtn);
 check('Dice hidden in manual mode', diceBlock.hidden, true);
 click(autoBtn);
 check('Dice back in auto mode', diceBlock.hidden, false);
+
+// --- Flurry strikes are chained, not fired at once ----------------------------
+// Under reduced motion the chain runs straight through, so this proves the
+// wiring and the ordering; the visible delay between them is not observable
+// here.
+click(autoBtn);
+api.setHP(27);
+clearLog();
+script([20, 20], [6, 4], [6, 4], [20, 14], [6, 5]);
+click(flurry);
+check('Flurry still logs two strikes', logEl.children.length, 2);
+check('First strike logged first',
+  logEl.children[1].querySelector('.roll-label').textContent.includes('Flurry 1'), true);
+check('Second strike logged second',
+  logEl.children[0].querySelector('.roll-label').textContent.includes('Flurry 2'), true);
+check('Label uses the short form',
+  logEl.children[0].querySelector('.roll-label').textContent.includes('Flurry of Blows'), false);
+// Each strike consumed its own scripted d20, in order.
+check('First strike crit', logEl.children[1].className.includes('is-crit'), true);
+check('Second strike did not', logEl.children[0].className.includes('is-crit'), false);
+check('Second strike total', logEl.children[0].querySelector('.roll-total').textContent.trim(), '20');
+
+// --- the spin animation must never consume real dice --------------------------
+// Display frames come from a private counter, so a scripted roll is not eaten
+// by the animation regardless of how many frames it draws.
+clearLog();
+const beforeSpin = unscripted;
+script([20, 13]);
+click(doc.querySelector('[data-roll-skill="stealth"]'));
+check('Skill roll used exactly its scripted die',
+  topEntry().querySelector('.roll-total').textContent.trim(), '19');
+check('Animation consumed no extra dice', unscripted - beforeSpin, 0);
 
 Math.random = realRandom;
 
