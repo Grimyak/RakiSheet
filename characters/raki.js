@@ -78,6 +78,10 @@ export default {
     { name: 'Pouch', qty: 2, weight: 1, carried: 'pack' },
   ],
 
+  resources: [
+    { key: 'daggers', label: 'Daggers', max: 7, recovery: 'long' },
+  ],
+
   currency: { gp: 27 },
 
   // Feature cards. `{tokens}` are filled from the derived character, so these
@@ -119,6 +123,19 @@ export default {
       damage: '1d4{dexMod} piercing, thrown 20/60',
       tableName: 'Dagger (&times;7)',
       text: '1d4{dexMod} piercing, reach 5 ft, or thrown at 20/60 ft. Simple, Finesse, Light, Thrown. Seven carried.',
+    },
+    {
+      section: 'attacks',
+      kind: 'Weapon · Thrown',
+      name: 'Dagger (thrown)',
+      cost: '{unarmedAttack}',
+      attack: '{unarmedAttack}',
+      damage: '1d4{dexMod} piercing',
+      range: '20/60 ft',
+      spends: { pool: 'daggers', amount: 1 },
+      tableName: 'Dagger, thrown',
+      text: '1d4{dexMod} piercing at 20/60 ft. Finesse, so Dexterity applies. The dagger lands where the target was and must be picked up afterwards.',
+      short: '— 1d4{dexMod} piercing, thrown 20/60. Seven carried.',
     },
     {
       section: 'attacks',

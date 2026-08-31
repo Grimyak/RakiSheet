@@ -111,9 +111,11 @@ function attacksCard(c, t) {
         </p>
         <div class="attack-buttons">
 ${each(attacks, (f, i) =>
-    `          <button type="button" class="attack-btn" data-attack="${i}">` +
-    `<span class="atk-name">${esc(f.name)}</span>` +
-    `<span class="atk-line">${fill(f.attack, t)} &middot; ${fill(f.damage, t).split(',')[0]}</span></button>`)}
+    `          <button type="button" class="attack-btn" data-attack="${i}"` +
+    (f.spends ? ` data-pool="${esc(f.spends.pool)}" data-amount="${f.spends.amount}"` : '') +
+    `><span class="atk-name">${esc(f.name)}</span>` +
+    `<span class="atk-line">${fill(f.attack, t)} &middot; ${fill(f.damage, t).split(',')[0]}` +
+    (f.range ? ` &middot; ${esc(f.range)}` : '') + `</span></button>`)}
         </div>
       </div>`;
 }

@@ -411,7 +411,7 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 
 .roll-log-wrap{margin-top:26px}
 .roll-log-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.roll-log{display:flex;flex-direction:column;gap:1px;max-height:280px;overflow-y:auto}
+.roll-log{display:flex;flex-direction:column;gap:1px;max-height:560px;overflow-y:auto}
 .roll-entry{
   display:grid;grid-template-columns:1fr auto;grid-template-areas:"label total" "detail total";
   gap:0 14px;align-items:center;padding:8px 12px;background:var(--field);
@@ -532,3 +532,7 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 }
 .roll-input .ri-field:focus{outline:none;border-color:var(--ochre)}
 @media print{.manual-hint,.roll-input{display:none}}
+
+.attack-btn:disabled{opacity:.4;cursor:default}
+.attack-btn:disabled:hover{border-color:var(--rule)}
+.attack-btn:disabled .atk-name{color:var(--bone-dim)}

@@ -100,7 +100,8 @@ const checks = [
   ['Print: no stray tokens', /\{[a-zA-Z]+\}/.test(printHTML), false],
   ['Print: all 18 skills', (printHTML.match(/ps-sk-name">[^<]+ \((?:Str|Dex|Con|Int|Wis|Cha)\)/g) ?? []).length, 18],
   ['Print: two pages', (printHTML.match(/class="ps-page"/g) ?? []).length, 2],
-  ['Print: attack rows', (printHTML.match(/<tr><td>/g) ?? []).length, 3],
+  // Unarmed Strike, Quarterstaff, Dagger, Dagger thrown.
+  ['Print: attack rows', (printHTML.match(/<tr><td>/g) ?? []).length, 4],
   ['Screen: AC rendered', screenHTML.includes('<b>17</b>'), true],
   ['Print: AC rendered', printHTML.includes('<b>17</b>'), true],
   ['Unresolved token count', fill.misses.size, 0],

@@ -139,6 +139,8 @@
     }
   }
 
+  var poolListeners = [];
+
   function renderPool(key) {
     var container = containerFor(key);
     if (!container) return;
@@ -148,6 +150,7 @@
     var countEl = document.querySelector('[data-count="' + key + '"]');
     if (countEl) countEl.textContent = state[key] + '/' + pools[key].max;
     refreshAbilityButtons();
+    poolListeners.forEach(function (fn) { fn(); });
   }
 
   function refreshAbilityButtons() {
@@ -226,6 +229,7 @@
       return { success: state.dsSuccess, fail: state.dsFail };
     },
     poolValue: function (key) { return pools[key] ? state[key] : 0; },
+    onPoolChange: function (fn) { poolListeners.push(fn); fn(); },
     spendPool: function (key, amount) {
       if (!pools[key] || state[key] < amount) return false;
       state[key] -= amount;
@@ -506,7 +510,8 @@
   function rollAttack(attack, labelPrefix, effectKey) {
     var label = (labelPrefix || '') + attack.name;
     // The entry appears first so manual mode has somewhere to put its input.
-    var el = entry(label, '&mdash;', manual ? 'Roll your d20' : '', '');
+    var el = entry(label + (attack.range ? ' (' + attack.range + ')' : ''),
+      '&mdash;', manual ? 'Roll your d20' : '', '');
     getD20(el, attack.attack, function (hit) {
       resolveAttack(el, attack, hit, labelPrefix, effectKey);
     });
@@ -590,12 +595,36 @@
   });
 
   // --- attack buttons ---
+  // Some attacks consume something. Throwing a dagger means you no longer have
+  // that dagger, so the button spends from its pool and disables at zero.
+  function refreshAttackButtons() {
+    var api = window.SHEET_API;
+    if (!api) return;
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.attack-btn[data-pool]'),
+      function (btn) {
+        var pool = btn.getAttribute('data-pool');
+        var amount = parseInt(btn.getAttribute('data-amount'), 10) || 1;
+        btn.disabled = api.poolValue(pool) < amount;
+      }
+    );
+  }
+
   Array.prototype.forEach.call(document.querySelectorAll('.attack-btn'), function (btn) {
     btn.addEventListener('click', function () {
       var a = (config.attacks || [])[parseInt(btn.getAttribute('data-attack'), 10)];
-      if (a) rollAttack(a);
+      if (!a) return;
+      if (a.pool) {
+        var api = window.SHEET_API;
+        if (!api || !api.spendPool(a.pool, a.amount || 1)) return;
+      }
+      rollAttack(a);
     });
   });
+
+  if (window.SHEET_API && window.SHEET_API.onPoolChange) {
+    window.SHEET_API.onPoolChange(refreshAttackButtons);
+  }
 
   // --- checks, saves, initiative ---
   function bindCheck(selector, attr, lookup, suffix) {

@@ -533,6 +533,54 @@ check('Verdict and buttons are separate blocks',
 api.setHP(27);
 check('Healing clears the notice', api.isDead(), false);
 
+// --- thrown daggers consume the dagger -----------------------------------------
+click(autoBtn);
+api.setHP(27);
+const thrownBtn = doc.querySelector('.attack-btn[data-pool="daggers"]');
+check('Thrown dagger button exists', !!thrownBtn, true);
+check('Seven daggers to start', api.poolValue('daggers'), 7);
+check('Button names the range', thrownBtn.textContent.includes('20/60 ft'), true);
+
+clearLog();
+script([20, 12], [4, 3]);
+click(thrownBtn);
+check('Throwing costs a dagger', api.poolValue('daggers'), 6);
+check('Range shown in the log', topEntry().textContent.includes('20/60 ft'), true);
+check('Thrown roll uses the Dex attack bonus',
+  topEntry().querySelector('.roll-total').textContent.trim(), '18');
+click([...topEntry().querySelectorAll('.roll-action-btn')].find((b) => b.textContent === 'Hit'));
+check('Thrown damage is piercing',
+  topEntry().querySelector('.dmg-type').textContent.trim(), 'piercing');
+check('Thrown damage uses d4',
+  topEntry().querySelector('.dmg-dice').textContent.includes('1d4+4'), true);
+
+// Melee daggers cost nothing — you keep hold of them.
+const meleeDagger = [...doc.querySelectorAll('.attack-btn')]
+  .find((b) => b.textContent.includes('DAGGER') === false
+    && b.querySelector('.atk-name').textContent === 'Dagger');
+script([20, 10], [6, 2]);
+click(meleeDagger);
+check('Melee dagger costs nothing', api.poolValue('daggers'), 6);
+
+// Run the pool dry: the button disables rather than throwing daggers you
+// do not have.
+for (let i = 0; i < 6; i++) {
+  script([20, 10]);
+  click(thrownBtn);
+}
+check('Pool emptied', api.poolValue('daggers'), 0);
+check('Button disabled when out', thrownBtn.disabled, true);
+
+const logLength = logEl.children.length;
+script([20, 10]);
+click(thrownBtn);
+check('Clicking an empty pool rolls nothing', logEl.children.length, logLength);
+
+// A long rest returns them, and the button comes back.
+click(doc.getElementById('longRest'));
+check('Long rest recovers daggers', api.poolValue('daggers'), 7);
+check('Button re-enabled', thrownBtn.disabled, false);
+
 Math.random = realRandom;
 
 let failed = 0;

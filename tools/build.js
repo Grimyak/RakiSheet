@@ -43,6 +43,10 @@ const attacks = c.features
       attack: Number(fill(f.attack, c.tokens).replace('+', '')),
       damage: formula,
       type,
+      range: f.range ?? null,
+      // Throwing a weapon costs you the weapon.
+      pool: f.spends ? f.spends.pool : null,
+      amount: f.spends ? f.spends.amount : 0,
     };
   });
 
