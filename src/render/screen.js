@@ -244,10 +244,24 @@ ${glanceRows(c)}
   <button id="toggleAll" type="button">Expand all</button>
 
   <section id="inplay">
-    <details open>
+    <details open id="inplayDetails">
     <summary class="label">In Play</summary>
     <div class="cols">
-      <div class="card hp-card" id="hpCard">
+${attacksCard(c, t)}
+    </div>
+
+    <div class="ability-list">
+      <span class="label" style="display:block;margin:26px 0 10px">Abilities</span>
+${actionRows(c, t)}
+    </div>
+    </details>
+  </section>
+
+  <!-- Live state: floats beside the sheet on wide screens, sits here on narrow
+       ones, and hides entirely when In Play is collapsed. -->
+  <div class="play-panel" id="playPanel">
+    <div class="pp-state">
+      <div class="pp-block hp-card" id="hpCard">
         <span class="kind">Hit Points</span>
         <div class="hp-row">
           <input type="number" id="hpCurrent" class="hp-input" min="0" max="${c.hitPoints.max}" value="${c.hitPoints.max}" aria-label="Current hit points">
@@ -267,13 +281,18 @@ ${glanceRows(c)}
           <button type="button" id="rollDeathSave" class="ds-roll-btn">Roll Death Save</button>
         </div>
       </div>
-      <div class="card">
+
+      <div class="pp-block">
         <span class="kind">Resources</span>
 ${resourceRows(c)}
+        <div class="rest-row">
+          <button type="button" id="shortRest">Short Rest</button>
+          <button type="button" id="longRest">Long Rest</button>
+        </div>
       </div>
-${attacksCard(c, t)}
-      <div class="card dice-card">
-        <span class="kind">Dice Roller</span>
+
+      <div class="pp-block dice-block" id="diceBlock">
+        <span class="kind">Dice</span>
         <div class="dice-buttons">
           <button type="button" class="die-btn" data-sides="4">D4</button>
           <button type="button" class="die-btn" data-sides="6">D6</button>
@@ -282,33 +301,13 @@ ${attacksCard(c, t)}
           <button type="button" class="die-btn" data-sides="12">D12</button>
           <button type="button" class="die-btn" data-sides="20">D20</button>
         </div>
-        <div class="dice-result" id="diceResult" aria-live="polite">&mdash;</div>
-        <div class="dice-history-row">
-          <div class="dice-history" id="diceHistory"></div>
-          <div class="history-actions">
-            <span class="history-total" id="historyTotal" hidden></span>
-            <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
-            <button type="button" id="clearHistory" class="clear-history-btn">Clear</button>
-          </div>
-        </div>
       </div>
     </div>
 
-    <div class="ability-list">
-      <span class="label" style="display:block;margin:26px 0 10px">Abilities</span>
-${actionRows(c, t)}
-    </div>
-
-    <div class="rest-row">
-      <button type="button" id="shortRest">Short Rest</button>
-      <button type="button" id="longRest">Long Rest</button>
-    </div>
-    </details>
-  </section>
-
-  <div class="roll-log-wrap">
     <div class="roll-log-head">
       <span class="label">Roll Log</span>
+      <span class="history-total" id="historyTotal" hidden></span>
+      <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
       <button type="button" id="clearRollLog" class="clear-history-btn">Clear</button>
     </div>
     <div class="roll-log" id="rollLog" aria-live="polite"></div>

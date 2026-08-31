@@ -581,6 +581,65 @@ click(doc.getElementById('longRest'));
 check('Long rest recovers daggers', api.poolValue('daggers'), 7);
 check('Button re-enabled', thrownBtn.disabled, false);
 
+// --- the live panel holds all of the in-play state ----------------------------
+const panel = doc.getElementById('playPanel');
+const inplayDetails = doc.getElementById('inplayDetails');
+check('Panel exists', !!panel, true);
+check('Panel holds hit points', !!panel.querySelector('#hpCurrent'), true);
+check('Panel holds resource pips', !!panel.querySelector('.pip-row[data-pool="focus"]'), true);
+check('Panel holds the rests', !!panel.querySelector('#shortRest'), true);
+check('Panel holds the dice', panel.querySelectorAll('.die-btn').length, 6);
+check('Panel holds the roll log', !!panel.querySelector('#rollLog'), true);
+check('Old separate dice card is gone', doc.querySelectorAll('.dice-card').length, 0);
+check('Old dice result element is gone', !!doc.getElementById('diceResult'), false);
+
+// --- the panel hides when In Play is collapsed --------------------------------
+check('Visible while In Play is open', panel.className.includes('is-hidden'), false);
+inplayDetails.removeAttribute('open');
+inplayDetails.dispatchEvent(new Event('toggle'));
+check('Hidden when In Play closes', panel.className.includes('is-hidden'), true);
+inplayDetails.setAttribute('open', '');
+inplayDetails.dispatchEvent(new Event('toggle'));
+check('Shown again when In Play opens', panel.className.includes('is-hidden'), false);
+
+// --- ad-hoc dice land in the roll log -----------------------------------------
+click(autoBtn);
+clearLog();
+const settle = () => new Promise((r) => setTimeout(r, 1200));
+script([20, 17]);
+click(doc.querySelector('.die-btn[data-sides="20"]'));
+await settle();
+check('Die roll logged', logEl.children.length, 1);
+check('Die entry labelled', topEntry().querySelector('.roll-label').textContent, 'D20');
+check('Die value shown', topEntry().querySelector('.roll-total').textContent.trim(), '17');
+check('Die entry marked as a die', topEntry().className.includes('is-die'), true);
+
+// Total sums only the ad-hoc dice, ignoring attacks and saves in the same log.
+script([6, 4]);
+click(doc.querySelector('.die-btn[data-sides="6"]'));
+await settle();
+api.setHP(27);
+script([20, 11]);
+click(doc.querySelector('[data-roll-skill="stealth"]'));
+check('Log holds dice and a skill check', logEl.children.length, 3);
+click(doc.getElementById('totalHistory'));
+const totalEl = doc.getElementById('historyTotal');
+check('Total counts dice only', totalEl.textContent, 'Total: ' + (17 + 4));
+check('Total is visible', totalEl.hidden, false);
+
+// Clearing the log resets the total too.
+click(doc.getElementById('clearRollLog'));
+check('Log cleared', logEl.children.length, 0);
+check('Total hidden after clearing', totalEl.hidden, true);
+
+// --- manual mode has no ad-hoc dice -------------------------------------------
+const diceBlock = doc.getElementById('diceBlock');
+check('Dice shown in auto mode', diceBlock.hidden, false);
+click(manualBtn);
+check('Dice hidden in manual mode', diceBlock.hidden, true);
+click(autoBtn);
+check('Dice back in auto mode', diceBlock.hidden, false);
+
 Math.random = realRandom;
 
 let failed = 0;

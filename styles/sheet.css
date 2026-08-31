@@ -263,7 +263,6 @@ details:not([open]) > summary.label{margin-bottom:0;border-bottom-color:var(--ru
   .ability-row{flex-direction:column;align-items:flex-start}
   .ability-btn{align-self:stretch;white-space:normal}
 }
-.dice-card{grid-column:span 2;min-width:0}
 .dice-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .die-btn{
   background:var(--panel);border:1px solid var(--rule);color:var(--bone);
@@ -412,7 +411,6 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 .attack-btn:hover .atk-name{color:var(--ochre)}
 .attack-btn .atk-line{font-size:.82rem;color:var(--bone-dim)}
 
-.roll-log-wrap{margin-top:26px}
 .roll-log-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .roll-log{display:flex;flex-direction:column;gap:1px;max-height:560px;overflow-y:auto}
 .roll-entry{
@@ -439,7 +437,7 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 .roll-entry.is-crit .roll-total{color:var(--moss);font-size:1.1rem}
 .roll-entry.is-fumble{border-left-color:var(--oxblood)}
 .roll-entry.is-fumble .roll-total{color:var(--oxblood);font-size:1.1rem}
-@media print{.roll-log-wrap,.adv-row,.attack-card{display:none}}
+@media print{.play-panel,.adv-row,.attack-card{display:none}}
 
 /* ---------- hit confirmation & rider effects ---------- */
 .roll-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
@@ -540,27 +538,6 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 .attack-btn:disabled:hover{border-color:var(--rule)}
 .attack-btn:disabled .atk-name{color:var(--bone-dim)}
 
-/* ---------- floating roll log on wide screens ---------- */
-/* Below this width there is no room beside the sheet, so the log stays in the
-   normal flow where it already sits. */
-@media (min-width:1500px){
-  /* Reserve the panel's gutter on the body, so .wrap stays centred within
-     what is left. Setting margin-right on .wrap itself would leave its
-     margin-left:auto to absorb all the slack, anchoring content to the right. */
-  body{padding-right:372px}
-  .roll-log-wrap{
-    position:fixed;top:20px;right:20px;width:332px;
-    max-height:calc(100vh - 40px);display:flex;flex-direction:column;
-    background:var(--panel);border:1px solid var(--rule);border-radius:2px;
-    padding:14px 16px;margin-top:0;z-index:40;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
-  }
-  .roll-log-wrap .roll-log-head{
-    margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--rule);
-  }
-  .roll-log-wrap .roll-log{max-height:none;flex:1 1 auto;overflow-y:auto}
-  .roll-log-wrap .roll-entry{background:var(--field)}
-}
 
 /* ---------- narrow screens ---------- */
 /* Flex buttons were shrinking below the width of their own labels, so "Roll
@@ -574,7 +551,6 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
    the rest of the sheet does. Give them a single column sooner. */
 @media(max-width:900px){
   #inplay .cols{grid-template-columns:1fr}
-  .dice-card{grid-column:span 1}
   .roll-log{max-height:360px}
 }
 
@@ -594,4 +570,41 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   .roll-entry{padding:8px 10px}
   .roll-entry .roll-total{font-size:1.3rem}
   .roll-damage .dmg-value{font-size:1.9rem}
+}
+
+/* ---------- live play panel ---------- */
+/* Holds hit points, resources, rests, ad-hoc dice and the roll log. Sits in the
+   normal flow on narrow screens and floats beside the sheet on wide ones. */
+.play-panel{
+  margin-top:30px;background:var(--panel);border:1px solid var(--rule);
+  border-radius:2px;padding:16px 18px;
+}
+.play-panel.is-hidden{display:none}
+.pp-state{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.pp-block{background:var(--field);border:1px solid var(--rule);padding:14px 16px;min-width:0}
+.pp-block .kind{
+  display:block;margin-bottom:10px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  font-weight:500;text-transform:uppercase;letter-spacing:.2em;font-size:.66rem;color:var(--bone-dim);
+}
+.pp-block .rest-row{margin-top:14px;justify-content:flex-start}
+.dice-block .dice-buttons{margin-top:0}
+.play-panel .roll-log-head{
+  display:flex;align-items:center;gap:10px;margin:18px 0 10px;
+  padding-bottom:10px;border-bottom:1px solid var(--rule);
+}
+.play-panel .roll-log-head .label{margin-right:auto}
+
+@media (min-width:1500px){
+  body{padding-right:372px}
+  .play-panel{
+    position:fixed;top:20px;right:20px;width:332px;margin-top:0;
+    max-height:calc(100vh - 40px);display:flex;flex-direction:column;
+    z-index:40;box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  /* Stack the state blocks; 332px is too narrow for a grid. */
+  .pp-state{grid-template-columns:1fr;gap:12px;flex:none}
+  .pp-block{padding:12px 14px}
+  .play-panel .hp-input{width:88px;font-size:2rem}
+  .play-panel .roll-log{max-height:none;flex:1 1 auto;overflow-y:auto}
+  .play-panel .roll-log-head{margin-top:14px}
 }

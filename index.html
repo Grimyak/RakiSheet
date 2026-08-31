@@ -270,7 +270,6 @@ details:not([open]) > summary.label{margin-bottom:0;border-bottom-color:var(--ru
   .ability-row{flex-direction:column;align-items:flex-start}
   .ability-btn{align-self:stretch;white-space:normal}
 }
-.dice-card{grid-column:span 2;min-width:0}
 .dice-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .die-btn{
   background:var(--panel);border:1px solid var(--rule);color:var(--bone);
@@ -419,7 +418,6 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 .attack-btn:hover .atk-name{color:var(--ochre)}
 .attack-btn .atk-line{font-size:.82rem;color:var(--bone-dim)}
 
-.roll-log-wrap{margin-top:26px}
 .roll-log-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .roll-log{display:flex;flex-direction:column;gap:1px;max-height:560px;overflow-y:auto}
 .roll-entry{
@@ -446,7 +444,7 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 .roll-entry.is-crit .roll-total{color:var(--moss);font-size:1.1rem}
 .roll-entry.is-fumble{border-left-color:var(--oxblood)}
 .roll-entry.is-fumble .roll-total{color:var(--oxblood);font-size:1.1rem}
-@media print{.roll-log-wrap,.adv-row,.attack-card{display:none}}
+@media print{.play-panel,.adv-row,.attack-card{display:none}}
 
 /* ---------- hit confirmation & rider effects ---------- */
 .roll-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
@@ -547,27 +545,6 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 .attack-btn:disabled:hover{border-color:var(--rule)}
 .attack-btn:disabled .atk-name{color:var(--bone-dim)}
 
-/* ---------- floating roll log on wide screens ---------- */
-/* Below this width there is no room beside the sheet, so the log stays in the
-   normal flow where it already sits. */
-@media (min-width:1500px){
-  /* Reserve the panel's gutter on the body, so .wrap stays centred within
-     what is left. Setting margin-right on .wrap itself would leave its
-     margin-left:auto to absorb all the slack, anchoring content to the right. */
-  body{padding-right:372px}
-  .roll-log-wrap{
-    position:fixed;top:20px;right:20px;width:332px;
-    max-height:calc(100vh - 40px);display:flex;flex-direction:column;
-    background:var(--panel);border:1px solid var(--rule);border-radius:2px;
-    padding:14px 16px;margin-top:0;z-index:40;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
-  }
-  .roll-log-wrap .roll-log-head{
-    margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--rule);
-  }
-  .roll-log-wrap .roll-log{max-height:none;flex:1 1 auto;overflow-y:auto}
-  .roll-log-wrap .roll-entry{background:var(--field)}
-}
 
 /* ---------- narrow screens ---------- */
 /* Flex buttons were shrinking below the width of their own labels, so "Roll
@@ -581,7 +558,6 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
    the rest of the sheet does. Give them a single column sooner. */
 @media(max-width:900px){
   #inplay .cols{grid-template-columns:1fr}
-  .dice-card{grid-column:span 1}
   .roll-log{max-height:360px}
 }
 
@@ -601,6 +577,43 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   .roll-entry{padding:8px 10px}
   .roll-entry .roll-total{font-size:1.3rem}
   .roll-damage .dmg-value{font-size:1.9rem}
+}
+
+/* ---------- live play panel ---------- */
+/* Holds hit points, resources, rests, ad-hoc dice and the roll log. Sits in the
+   normal flow on narrow screens and floats beside the sheet on wide ones. */
+.play-panel{
+  margin-top:30px;background:var(--panel);border:1px solid var(--rule);
+  border-radius:2px;padding:16px 18px;
+}
+.play-panel.is-hidden{display:none}
+.pp-state{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.pp-block{background:var(--field);border:1px solid var(--rule);padding:14px 16px;min-width:0}
+.pp-block .kind{
+  display:block;margin-bottom:10px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  font-weight:500;text-transform:uppercase;letter-spacing:.2em;font-size:.66rem;color:var(--bone-dim);
+}
+.pp-block .rest-row{margin-top:14px;justify-content:flex-start}
+.dice-block .dice-buttons{margin-top:0}
+.play-panel .roll-log-head{
+  display:flex;align-items:center;gap:10px;margin:18px 0 10px;
+  padding-bottom:10px;border-bottom:1px solid var(--rule);
+}
+.play-panel .roll-log-head .label{margin-right:auto}
+
+@media (min-width:1500px){
+  body{padding-right:372px}
+  .play-panel{
+    position:fixed;top:20px;right:20px;width:332px;margin-top:0;
+    max-height:calc(100vh - 40px);display:flex;flex-direction:column;
+    z-index:40;box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  /* Stack the state blocks; 332px is too narrow for a grid. */
+  .pp-state{grid-template-columns:1fr;gap:12px;flex:none}
+  .pp-block{padding:12px 14px}
+  .play-panel .hp-input{width:88px;font-size:2rem}
+  .play-panel .roll-log{max-height:none;flex:1 1 auto;overflow-y:auto}
+  .play-panel .roll-log-head{margin-top:14px}
 }
 
 </style>
@@ -871,48 +884,9 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   <button id="toggleAll" type="button">Expand all</button>
 
   <section id="inplay">
-    <details open>
+    <details open id="inplayDetails">
     <summary class="label">In Play</summary>
     <div class="cols">
-      <div class="card hp-card" id="hpCard">
-        <span class="kind">Hit Points</span>
-        <div class="hp-row">
-          <input type="number" id="hpCurrent" class="hp-input" min="0" max="27" value="27" aria-label="Current hit points">
-          <span class="hp-max">/ <span id="hpMax">27</span></span>
-        </div>
-        <div class="hp-quick">
-          <input type="number" id="hpAmount" min="1" value="1" aria-label="Amount to apply">
-          <button type="button" id="hpDamage">Damage</button>
-          <button type="button" id="hpHeal">Heal</button>
-          <button type="button" id="hpReset">Reset to max</button>
-        </div>
-        <div class="dead-notice" id="deadNotice" hidden></div>
-        <div class="death-saves" id="deathSaves" hidden>
-          <span class="label" style="display:block;margin-bottom:6px">Death Saves</span>
-          <div class="ds-row"><span class="ds-label">Successes</span><div class="pip-row" data-pool="dsSuccess"></div></div>
-          <div class="ds-row"><span class="ds-label">Failures</span><div class="pip-row" data-pool="dsFail"></div></div>
-          <button type="button" id="rollDeathSave" class="ds-roll-btn">Roll Death Save</button>
-        </div>
-      </div>
-      <div class="card">
-        <span class="kind">Resources</span>
-        <div class="resource-row">
-          <span class="res-label">Heroic Inspiration</span>
-          <div class="pip-row" data-pool="inspiration"></div><span class="pip-count" data-count="inspiration">1/1</span>
-        </div>
-        <div class="resource-row">
-          <span class="res-label">Focus</span>
-          <div class="pip-row" data-pool="focus"></div><span class="pip-count" data-count="focus">3/3</span>
-        </div>
-        <div class="resource-row">
-          <span class="res-label">Luck</span>
-          <div class="pip-row" data-pool="luck"></div><span class="pip-count" data-count="luck">2/2</span>
-        </div>
-        <div class="resource-row">
-          <span class="res-label">Daggers</span>
-          <div class="pip-row" data-pool="daggers"></div><span class="pip-count" data-count="daggers">7/7</span>
-        </div>
-      </div>
       <div class="card attack-card">
         <span class="kind">Attacks</span>
         <div class="adv-row" role="group" aria-label="Dice source">
@@ -933,26 +907,6 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
           <button type="button" class="attack-btn" data-attack="1"><span class="atk-name">Quarterstaff</span><span class="atk-line">+6 &middot; 1d6+4 bludgeoning</span></button>
           <button type="button" class="attack-btn" data-attack="2"><span class="atk-name">Dagger</span><span class="atk-line">+6 &middot; 1d4+4 piercing</span></button>
           <button type="button" class="attack-btn" data-attack="3" data-pool="daggers" data-amount="1"><span class="atk-name">Dagger (thrown)</span><span class="atk-line">+6 &middot; 1d4+4 piercing &middot; 20/60 ft</span></button>
-        </div>
-      </div>
-      <div class="card dice-card">
-        <span class="kind">Dice Roller</span>
-        <div class="dice-buttons">
-          <button type="button" class="die-btn" data-sides="4">D4</button>
-          <button type="button" class="die-btn" data-sides="6">D6</button>
-          <button type="button" class="die-btn" data-sides="10">D10</button>
-          <button type="button" class="die-btn" data-sides="100">D100</button>
-          <button type="button" class="die-btn" data-sides="12">D12</button>
-          <button type="button" class="die-btn" data-sides="20">D20</button>
-        </div>
-        <div class="dice-result" id="diceResult" aria-live="polite">&mdash;</div>
-        <div class="dice-history-row">
-          <div class="dice-history" id="diceHistory"></div>
-          <div class="history-actions">
-            <span class="history-total" id="historyTotal" hidden></span>
-            <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
-            <button type="button" id="clearHistory" class="clear-history-btn">Clear</button>
-          </div>
         </div>
       </div>
     </div>
@@ -1002,17 +956,75 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
         <button type="button" class="ability-btn" data-action="5" data-special="refillFocus">Use</button>
       </div>
     </div>
-
-    <div class="rest-row">
-      <button type="button" id="shortRest">Short Rest</button>
-      <button type="button" id="longRest">Long Rest</button>
-    </div>
     </details>
   </section>
 
-  <div class="roll-log-wrap">
+  <!-- Live state: floats beside the sheet on wide screens, sits here on narrow
+       ones, and hides entirely when In Play is collapsed. -->
+  <div class="play-panel" id="playPanel">
+    <div class="pp-state">
+      <div class="pp-block hp-card" id="hpCard">
+        <span class="kind">Hit Points</span>
+        <div class="hp-row">
+          <input type="number" id="hpCurrent" class="hp-input" min="0" max="27" value="27" aria-label="Current hit points">
+          <span class="hp-max">/ <span id="hpMax">27</span></span>
+        </div>
+        <div class="hp-quick">
+          <input type="number" id="hpAmount" min="1" value="1" aria-label="Amount to apply">
+          <button type="button" id="hpDamage">Damage</button>
+          <button type="button" id="hpHeal">Heal</button>
+          <button type="button" id="hpReset">Reset to max</button>
+        </div>
+        <div class="dead-notice" id="deadNotice" hidden></div>
+        <div class="death-saves" id="deathSaves" hidden>
+          <span class="label" style="display:block;margin-bottom:6px">Death Saves</span>
+          <div class="ds-row"><span class="ds-label">Successes</span><div class="pip-row" data-pool="dsSuccess"></div></div>
+          <div class="ds-row"><span class="ds-label">Failures</span><div class="pip-row" data-pool="dsFail"></div></div>
+          <button type="button" id="rollDeathSave" class="ds-roll-btn">Roll Death Save</button>
+        </div>
+      </div>
+
+      <div class="pp-block">
+        <span class="kind">Resources</span>
+        <div class="resource-row">
+          <span class="res-label">Heroic Inspiration</span>
+          <div class="pip-row" data-pool="inspiration"></div><span class="pip-count" data-count="inspiration">1/1</span>
+        </div>
+        <div class="resource-row">
+          <span class="res-label">Focus</span>
+          <div class="pip-row" data-pool="focus"></div><span class="pip-count" data-count="focus">3/3</span>
+        </div>
+        <div class="resource-row">
+          <span class="res-label">Luck</span>
+          <div class="pip-row" data-pool="luck"></div><span class="pip-count" data-count="luck">2/2</span>
+        </div>
+        <div class="resource-row">
+          <span class="res-label">Daggers</span>
+          <div class="pip-row" data-pool="daggers"></div><span class="pip-count" data-count="daggers">7/7</span>
+        </div>
+        <div class="rest-row">
+          <button type="button" id="shortRest">Short Rest</button>
+          <button type="button" id="longRest">Long Rest</button>
+        </div>
+      </div>
+
+      <div class="pp-block dice-block" id="diceBlock">
+        <span class="kind">Dice</span>
+        <div class="dice-buttons">
+          <button type="button" class="die-btn" data-sides="4">D4</button>
+          <button type="button" class="die-btn" data-sides="6">D6</button>
+          <button type="button" class="die-btn" data-sides="10">D10</button>
+          <button type="button" class="die-btn" data-sides="100">D100</button>
+          <button type="button" class="die-btn" data-sides="12">D12</button>
+          <button type="button" class="die-btn" data-sides="20">D20</button>
+        </div>
+      </div>
+    </div>
+
     <div class="roll-log-head">
       <span class="label">Roll Log</span>
+      <span class="history-total" id="historyTotal" hidden></span>
+      <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
       <button type="button" id="clearRollLog" class="clear-history-btn">Clear</button>
     </div>
     <div class="roll-log" id="rollLog" aria-live="polite"></div>
@@ -1431,7 +1443,10 @@ function rollD20(modifier, mode, rng) {
   }
 
   function containerFor(key) {
-    return document.querySelector('[data-pool="' + key + '"]');
+    // Must be the pip row specifically: ability and attack buttons also carry
+    // data-pool to declare what they spend, and some of them precede the
+    // panel in the document.
+    return document.querySelector('.pip-row[data-pool="' + key + '"]');
   }
 
   function buildPips(key) {
@@ -1661,6 +1676,8 @@ function rollD20(modifier, mode, rng) {
     });
     var hint = document.getElementById('manualHint');
     if (hint) hint.hidden = !manual;
+    var diceBlock = document.getElementById('diceBlock');
+    if (diceBlock) diceBlock.hidden = manual;
     if (manual) setMode('flat');
   }
 
@@ -2097,40 +2114,30 @@ function rollD20(modifier, mode, rng) {
 })();
 
 // --- Dice roller --------------------------------------------------------------
-(function () {
-  var HISTORY_MAX = 8;
-  var result = document.getElementById('diceResult');
-  var history = document.getElementById('diceHistory');
-  if (!result) return;
+// Ad-hoc dice now land in the roll log rather than a separate history, so one
+// list holds everything that happened this turn.
 
-  var rolls = [];
+(function () {
+  var log = document.getElementById('rollLog');
+  if (!log) return;
+
   var dieButtons = Array.prototype.slice.call(document.querySelectorAll('.die-btn'));
   var reduceMotion = window.matchMedia
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var rolling = false;
   var rollToken = 0;
   var settleDelays = [40, 40, 50, 60, 80, 100, 130, 170, 220];
-  var PLACEHOLDER = '—';
 
-  function showValue(label, value) {
-    result.innerHTML = '<span class="die-label">' + label + '</span>' + value;
-  }
-
-  var historyTotal = document.getElementById('historyTotal');
-  function hideTotal() {
-    if (!historyTotal) return;
-    historyTotal.hidden = true;
-    historyTotal.textContent = '';
-  }
-
-  function recordRoll(label, value) {
-    rolls.unshift({ label: label, value: value });
-    rolls = rolls.slice(0, HISTORY_MAX);
-    history.innerHTML = rolls.map(function (r) {
-      return '<span class="hist-item"><span class="hist-label">' + r.label + '</span>'
-        + '<span class="hist-value">' + r.value + '</span></span>';
-    }).join('');
-    hideTotal();
+  function logDie(label, value, sides) {
+    var el = document.createElement('div');
+    el.className = 'roll-entry is-die';
+    el.setAttribute('data-die-value', value);
+    el.innerHTML = '<span class="roll-label">' + label + '</span>'
+      + '<span class="roll-total">' + value + '</span>'
+      + '<span class="roll-detail">d' + sides + '</span>';
+    log.insertBefore(el, log.firstChild);
+    while (log.children.length > 12) log.removeChild(log.lastChild);
+    return el;
   }
 
   dieButtons.forEach(function (btn) {
@@ -2140,55 +2147,73 @@ function rollD20(modifier, mode, rng) {
       var label = btn.textContent;
       var final = Math.floor(Math.random() * sides) + 1;
 
-      if (reduceMotion) {
-        showValue(label, final);
-        recordRoll(label, final);
-        return;
-      }
+      if (reduceMotion) { logDie(label, final, sides); return; }
 
       rolling = true;
       rollToken++;
       var myToken = rollToken;
       dieButtons.forEach(function (b) { b.disabled = true; });
 
+      var el = logDie(label, Math.floor(Math.random() * sides) + 1, sides);
+      var totalEl = el.querySelector('.roll-total');
       var step = 0;
+
       (function tick() {
         if (myToken !== rollToken) return;
         if (step >= settleDelays.length) {
-          showValue(label, final);
-          recordRoll(label, final);
+          totalEl.textContent = final;
+          el.setAttribute('data-die-value', final);
           rolling = false;
           dieButtons.forEach(function (b) { b.disabled = false; });
           return;
         }
-        showValue(label, Math.floor(Math.random() * sides) + 1);
+        totalEl.textContent = Math.floor(Math.random() * sides) + 1;
         setTimeout(tick, settleDelays[step]);
         step++;
       })();
     });
   });
 
-  var clearBtn = document.getElementById('clearHistory');
-  if (clearBtn) {
+  // Total sums the ad-hoc dice showing in the log, ignoring attacks and saves.
+  var historyTotal = document.getElementById('historyTotal');
+  var totalBtn = document.getElementById('totalHistory');
+  if (totalBtn && historyTotal) {
+    totalBtn.addEventListener('click', function () {
+      var sum = 0;
+      var count = 0;
+      Array.prototype.forEach.call(log.querySelectorAll('[data-die-value]'), function (el) {
+        sum += parseInt(el.getAttribute('data-die-value'), 10) || 0;
+        count++;
+      });
+      historyTotal.textContent = count ? 'Total: ' + sum : 'No dice';
+      historyTotal.hidden = false;
+    });
+  }
+
+  var clearBtn = document.getElementById('clearRollLog');
+  if (clearBtn && historyTotal) {
     clearBtn.addEventListener('click', function () {
       rollToken++;
       rolling = false;
       dieButtons.forEach(function (b) { b.disabled = false; });
-      result.innerHTML = PLACEHOLDER;
-      rolls = [];
-      history.innerHTML = '';
-      hideTotal();
+      historyTotal.hidden = true;
     });
   }
+})();
 
-  var totalBtn = document.getElementById('totalHistory');
-  if (totalBtn && historyTotal) {
-    totalBtn.addEventListener('click', function () {
-      var sum = rolls.reduce(function (acc, r) { return acc + r.value; }, 0);
-      historyTotal.textContent = 'Total: ' + sum;
-      historyTotal.hidden = false;
-    });
+// --- Panel visibility follows the In Play section -----------------------------
+(function () {
+  var details = document.getElementById('inplayDetails');
+  var panel = document.getElementById('playPanel');
+  if (!details || !panel) return;
+
+  // Read the attribute rather than the IDL property: browsers reflect `open`
+  // onto it, and it is the only one a parsed document is guaranteed to have.
+  function sync() {
+    panel.classList.toggle('is-hidden', !details.hasAttribute('open'));
   }
+  details.addEventListener('toggle', sync);
+  sync();
 })();
 
 </script>

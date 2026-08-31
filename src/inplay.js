@@ -116,7 +116,10 @@
   }
 
   function containerFor(key) {
-    return document.querySelector('[data-pool="' + key + '"]');
+    // Must be the pip row specifically: ability and attack buttons also carry
+    // data-pool to declare what they spend, and some of them precede the
+    // panel in the document.
+    return document.querySelector('.pip-row[data-pool="' + key + '"]');
   }
 
   function buildPips(key) {
@@ -346,6 +349,8 @@
     });
     var hint = document.getElementById('manualHint');
     if (hint) hint.hidden = !manual;
+    var diceBlock = document.getElementById('diceBlock');
+    if (diceBlock) diceBlock.hidden = manual;
     if (manual) setMode('flat');
   }
 
@@ -782,40 +787,30 @@
 })();
 
 // --- Dice roller --------------------------------------------------------------
-(function () {
-  var HISTORY_MAX = 8;
-  var result = document.getElementById('diceResult');
-  var history = document.getElementById('diceHistory');
-  if (!result) return;
+// Ad-hoc dice now land in the roll log rather than a separate history, so one
+// list holds everything that happened this turn.
 
-  var rolls = [];
+(function () {
+  var log = document.getElementById('rollLog');
+  if (!log) return;
+
   var dieButtons = Array.prototype.slice.call(document.querySelectorAll('.die-btn'));
   var reduceMotion = window.matchMedia
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var rolling = false;
   var rollToken = 0;
   var settleDelays = [40, 40, 50, 60, 80, 100, 130, 170, 220];
-  var PLACEHOLDER = '—';
 
-  function showValue(label, value) {
-    result.innerHTML = '<span class="die-label">' + label + '</span>' + value;
-  }
-
-  var historyTotal = document.getElementById('historyTotal');
-  function hideTotal() {
-    if (!historyTotal) return;
-    historyTotal.hidden = true;
-    historyTotal.textContent = '';
-  }
-
-  function recordRoll(label, value) {
-    rolls.unshift({ label: label, value: value });
-    rolls = rolls.slice(0, HISTORY_MAX);
-    history.innerHTML = rolls.map(function (r) {
-      return '<span class="hist-item"><span class="hist-label">' + r.label + '</span>'
-        + '<span class="hist-value">' + r.value + '</span></span>';
-    }).join('');
-    hideTotal();
+  function logDie(label, value, sides) {
+    var el = document.createElement('div');
+    el.className = 'roll-entry is-die';
+    el.setAttribute('data-die-value', value);
+    el.innerHTML = '<span class="roll-label">' + label + '</span>'
+      + '<span class="roll-total">' + value + '</span>'
+      + '<span class="roll-detail">d' + sides + '</span>';
+    log.insertBefore(el, log.firstChild);
+    while (log.children.length > 12) log.removeChild(log.lastChild);
+    return el;
   }
 
   dieButtons.forEach(function (btn) {
@@ -825,53 +820,71 @@
       var label = btn.textContent;
       var final = Math.floor(Math.random() * sides) + 1;
 
-      if (reduceMotion) {
-        showValue(label, final);
-        recordRoll(label, final);
-        return;
-      }
+      if (reduceMotion) { logDie(label, final, sides); return; }
 
       rolling = true;
       rollToken++;
       var myToken = rollToken;
       dieButtons.forEach(function (b) { b.disabled = true; });
 
+      var el = logDie(label, Math.floor(Math.random() * sides) + 1, sides);
+      var totalEl = el.querySelector('.roll-total');
       var step = 0;
+
       (function tick() {
         if (myToken !== rollToken) return;
         if (step >= settleDelays.length) {
-          showValue(label, final);
-          recordRoll(label, final);
+          totalEl.textContent = final;
+          el.setAttribute('data-die-value', final);
           rolling = false;
           dieButtons.forEach(function (b) { b.disabled = false; });
           return;
         }
-        showValue(label, Math.floor(Math.random() * sides) + 1);
+        totalEl.textContent = Math.floor(Math.random() * sides) + 1;
         setTimeout(tick, settleDelays[step]);
         step++;
       })();
     });
   });
 
-  var clearBtn = document.getElementById('clearHistory');
-  if (clearBtn) {
+  // Total sums the ad-hoc dice showing in the log, ignoring attacks and saves.
+  var historyTotal = document.getElementById('historyTotal');
+  var totalBtn = document.getElementById('totalHistory');
+  if (totalBtn && historyTotal) {
+    totalBtn.addEventListener('click', function () {
+      var sum = 0;
+      var count = 0;
+      Array.prototype.forEach.call(log.querySelectorAll('[data-die-value]'), function (el) {
+        sum += parseInt(el.getAttribute('data-die-value'), 10) || 0;
+        count++;
+      });
+      historyTotal.textContent = count ? 'Total: ' + sum : 'No dice';
+      historyTotal.hidden = false;
+    });
+  }
+
+  var clearBtn = document.getElementById('clearRollLog');
+  if (clearBtn && historyTotal) {
     clearBtn.addEventListener('click', function () {
       rollToken++;
       rolling = false;
       dieButtons.forEach(function (b) { b.disabled = false; });
-      result.innerHTML = PLACEHOLDER;
-      rolls = [];
-      history.innerHTML = '';
-      hideTotal();
+      historyTotal.hidden = true;
     });
   }
+})();
 
-  var totalBtn = document.getElementById('totalHistory');
-  if (totalBtn && historyTotal) {
-    totalBtn.addEventListener('click', function () {
-      var sum = rolls.reduce(function (acc, r) { return acc + r.value; }, 0);
-      historyTotal.textContent = 'Total: ' + sum;
-      historyTotal.hidden = false;
-    });
+// --- Panel visibility follows the In Play section -----------------------------
+(function () {
+  var details = document.getElementById('inplayDetails');
+  var panel = document.getElementById('playPanel');
+  if (!details || !panel) return;
+
+  // Read the attribute rather than the IDL property: browsers reflect `open`
+  // onto it, and it is the only one a parsed document is guaranteed to have.
+  function sync() {
+    panel.classList.toggle('is-hidden', !details.hasAttribute('open'));
   }
+  details.addEventListener('toggle', sync);
+  sync();
 })();
