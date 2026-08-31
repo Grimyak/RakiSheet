@@ -1,0 +1,2090 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raki — Monk 3</title>
+<style>
+:root{
+  --ink:#151b25;
+  --field:#212833;
+  --panel:#28313f;
+  --rule:#3a4552;
+  --bone:#ded3c0;
+  --bone-dim:#8e9198;
+  --ochre:#c9922f;
+  --oxblood:#9c4139;
+  --bead:#59636f;
+  --leather:#8a6844;
+  --moss:#5f8f5a;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--ink);
+  color:var(--bone);
+  font-family:'Spectral',Georgia,serif;
+  font-weight:300;
+  font-size:16px;
+  line-height:1.6;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:40px 24px 80px}
+
+/* ---------- type roles ---------- */
+.label{
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:.22em;
+  font-size:.72rem;
+  color:var(--bone-dim);
+}
+h1,h2,h3{font-family:'Vollkorn',Georgia,serif;font-weight:700;margin:0}
+
+/* ---------- masthead ---------- */
+.mast{border-bottom:1px solid var(--rule);padding-bottom:22px;margin-bottom:34px}
+.mast h1{
+  font-weight:900;font-size:clamp(3.4rem,13vw,6.5rem);
+  line-height:.85;letter-spacing:-.02em;color:var(--bone);
+}
+.mast .sub{
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  text-transform:uppercase;letter-spacing:.3em;font-size:.85rem;
+  color:var(--ochre);margin-top:14px;
+}
+.mast .gloss{
+  font-style:italic;color:var(--bone-dim);max-width:52ch;margin-top:10px;font-size:.98rem;
+}
+
+/* ---------- layout ---------- */
+.top{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:38px;align-items:start}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:26px}
+section{margin-top:44px}
+section > .label{display:block;border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:20px}
+
+/* ---------- art ---------- */
+.art{position:relative;background:var(--field);border:1px solid var(--rule)}
+.art img{display:block;width:100%;height:auto}
+.art figcaption{
+  padding:12px 14px;font-size:.82rem;color:var(--bone-dim);
+  border-top:1px solid var(--rule);line-height:1.45;
+}
+
+/* ---------- headline stats ---------- */
+.vitals{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.vital{background:var(--field);padding:18px 16px;text-align:center}
+.vital b{display:block;font-family:'Vollkorn',serif;font-weight:900;font-size:2.9rem;line-height:1;color:var(--ochre)}
+.vital .label{display:block;margin-top:8px}
+
+/* ---------- ability grid ---------- */
+.abils{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:22px}
+.abil{background:var(--field);padding:14px 6px;text-align:center}
+.abil .nm{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.16em;font-size:.68rem;color:var(--bone-dim)}
+.abil .sc{font-family:'Vollkorn',serif;font-weight:700;font-size:2rem;line-height:1.1;margin:2px 0}
+.abil .md{font-size:.95rem;color:var(--ochre)}
+.abil .sv{font-size:.74rem;color:var(--bone-dim);margin-top:6px;border-top:1px solid var(--rule);padding-top:6px}
+.abil.weak .sc{color:var(--oxblood)}
+
+/* ---------- the bead: proficiency marker ---------- */
+.bead{
+  display:inline-block;width:11px;height:11px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%, #7b8794 0%, var(--bead) 45%, #333c47 100%);
+  box-shadow:0 0 0 1px #10151c inset;
+  vertical-align:middle;margin-right:9px;flex:none;
+}
+.bead.off{background:none;box-shadow:0 0 0 1px var(--rule) inset}
+
+/* ---------- lists ---------- */
+.rows{list-style:none;margin:0;padding:0}
+.rows li{display:flex;align-items:center;gap:2px;padding:7px 0;border-bottom:1px solid var(--rule);font-size:.95rem}
+.rows li:last-child{border-bottom:0}
+.rows .v{margin-left:auto;font-family:'Vollkorn',serif;font-weight:600;color:var(--ochre)}
+.rows .prof{color:var(--bone)}
+.rows .none{color:var(--bone-dim)}
+
+/* ---------- panels ---------- */
+.card{background:var(--field);border:1px solid var(--rule);padding:20px 22px;min-width:0}
+.card h3{font-size:1.12rem;color:var(--bone);margin-bottom:4px}
+.card h3 .cost{
+  font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;
+  letter-spacing:.16em;font-size:.66rem;color:var(--ochre);margin-left:10px;
+  border:1px solid var(--ochre);padding:2px 7px;border-radius:2px;white-space:nowrap;
+}
+.card p{margin:8px 0 0;font-size:.94rem}
+.card p:first-of-type{margin-top:6px}
+
+/* ---------- turn sequence ---------- */
+.turn{border-left:2px solid var(--ochre);padding-left:20px}
+.turn .step{margin-bottom:22px}
+.turn .step:last-child{margin-bottom:0}
+.turn .step h3{font-size:1.05rem}
+.turn .dmg{font-family:'Vollkorn',serif;font-weight:700;color:var(--ochre);font-size:1.25rem}
+
+/* ---------- quotes / character ---------- */
+.pull{
+  font-family:'Vollkorn',serif;font-weight:600;font-size:clamp(1.3rem,3.4vw,1.9rem);
+  line-height:1.35;color:var(--bone);border-left:3px solid var(--oxblood);
+  padding-left:22px;margin:0;
+}
+.story{columns:2;column-gap:38px;font-size:.97rem}
+.story p{margin:0 0 1.05em;break-inside:avoid}
+.story p:first-child::first-letter{
+  font-family:'Vollkorn',serif;font-weight:900;font-size:3.3rem;
+  float:left;line-height:.82;padding:4px 10px 0 0;color:var(--ochre);
+}
+.trait{margin-bottom:18px}
+.trait .label{display:block;color:var(--oxblood);margin-bottom:4px}
+.trait p{margin:0;font-size:.95rem}
+
+.portrait{border:1px solid var(--rule);background:var(--field)}
+.portrait img{display:block;width:100%;height:auto}
+
+.foot{margin-top:56px;padding-top:18px;border-top:1px solid var(--rule);font-size:.82rem;color:var(--bone-dim)}
+
+@media(max-width:820px){
+  .wrap{padding:26px 16px 60px}
+  .top{grid-template-columns:1fr;gap:26px}
+  .abils{grid-template-columns:repeat(3,1fr)}
+  .story{columns:1}
+}
+@media print{
+  @page{margin:0.4in}
+  body{background:#fff;color:#000}
+  .wrap,.print-btn{display:none}
+  .print-sheet{display:block}
+}
+@media(prefers-reduced-motion:no-preference){
+  .mast h1{animation:rise .7s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+}
+
+/* ---------- collapsible sections ---------- */
+details{border:0}
+summary.label{
+  display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;
+  border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:20px;
+  -webkit-user-select:none;user-select:none;transition:color .15s;
+}
+summary.label::-webkit-details-marker{display:none}
+summary.label::after{
+  content:'';margin-left:auto;flex:none;width:7px;height:7px;
+  border-right:1.5px solid var(--bone-dim);border-bottom:1.5px solid var(--bone-dim);
+  transform:rotate(45deg) translateY(-2px);transition:transform .2s,border-color .15s;
+}
+details[open] > summary.label::after{transform:rotate(225deg) translateY(1px)}
+summary.label:hover{color:var(--ochre)}
+summary.label:hover::after{border-color:var(--ochre)}
+summary.label:focus-visible{outline:2px solid var(--ochre);outline-offset:5px}
+details:not([open]) > summary.label{margin-bottom:0;border-bottom-color:var(--rule)}
+#toggleAll{
+  display:block;margin:34px 0 -18px auto;background:none;border:1px solid var(--rule);
+  color:var(--bone-dim);padding:6px 14px;cursor:pointer;border-radius:2px;
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.2em;font-size:.7rem;transition:all .15s;
+}
+#toggleAll:hover{color:var(--ochre);border-color:var(--ochre)}
+#toggleAll:focus-visible{outline:2px solid var(--ochre);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){summary.label::after{transition:none}}
+
+.kind{
+  display:block;font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.2em;font-size:.62rem;
+  color:var(--bone-dim);margin-bottom:7px;
+}
+
+.closing{margin-top:56px;border-top:1px solid var(--rule);padding-top:0}
+.closing img{display:block;width:100%;height:auto}
+.closing figcaption{
+  padding:14px 2px 0;font-family:'Vollkorn',Georgia,serif;font-weight:600;
+  font-size:1.05rem;color:var(--bone-dim);line-height:1.45;
+}
+@media(max-width:820px){.closing figcaption{font-size:.95rem}}
+
+/* ---------- in-play tracker ---------- */
+.hp-row{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:8px;margin:6px 0 14px}
+.hp-input{
+  width:110px;background:var(--panel);border:1px solid var(--rule);color:var(--ochre);
+  font-family:'Vollkorn',serif;font-weight:900;font-size:2.6rem;text-align:center;
+  padding:2px 8px;border-radius:2px;-moz-appearance:textfield;
+}
+.hp-input::-webkit-outer-spin-button,.hp-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.hp-max{font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:1rem;color:var(--bone-dim)}
+.hp-card.low .hp-input{color:var(--oxblood)}
+.hp-quick{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hp-quick input{
+  width:56px;background:var(--panel);border:1px solid var(--rule);color:var(--bone);
+  padding:6px 8px;font-family:'Spectral',serif;border-radius:2px;
+}
+.hp-quick button,.rest-row button{
+  background:none;border:1px solid var(--rule);color:var(--bone-dim);padding:6px 12px;
+  cursor:pointer;border-radius:2px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  text-transform:uppercase;letter-spacing:.12em;font-size:.7rem;transition:all .15s;
+}
+.hp-quick button:hover,.rest-row button:hover{color:var(--ochre);border-color:var(--ochre)}
+.pip-row{display:inline-flex;gap:8px;vertical-align:middle}
+.pip{
+  width:18px;height:18px;border-radius:50%;cursor:pointer;padding:0;border:0;flex:none;
+  background:radial-gradient(circle at 32% 28%, #d9a544 0%, var(--ochre) 45%, #7a5b1e 100%);
+  box-shadow:0 0 0 1px #10151c inset;
+}
+.pip.spent{background:none;box-shadow:0 0 0 1px var(--rule) inset}
+.pip-count{margin-left:10px;font-size:.85rem;color:var(--bone-dim);vertical-align:middle}
+.death-saves{margin-top:16px;padding-top:14px;border-top:1px solid var(--rule)}
+.ds-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.ds-row .ds-label{width:80px;font-size:.85rem;color:var(--bone-dim)}
+.rest-row{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+.resource-row{display:flex;flex-wrap:wrap;row-gap:6px;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule)}
+.resource-row:last-child{border-bottom:0}
+.res-label{
+  width:88px;flex:none;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  text-transform:uppercase;letter-spacing:.14em;font-size:.72rem;color:var(--bone-dim);
+}
+.ability-list{margin-top:26px}
+.ability-row{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:14px 0;border-bottom:1px solid var(--rule);
+}
+.ability-row:last-child{border-bottom:0}
+.ability-info h3{font-size:1rem;color:var(--bone);margin-bottom:3px}
+.ability-info h3 .cost{
+  font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.16em;font-size:.62rem;
+  color:var(--ochre);margin-left:10px;border:1px solid var(--ochre);padding:2px 7px;border-radius:2px;white-space:nowrap;
+}
+.ability-info p{margin:4px 0 0;font-size:.9rem;color:var(--bone-dim)}
+.ability-btn{
+  flex:none;background:none;border:1px solid var(--ochre);color:var(--ochre);padding:9px 16px;
+  cursor:pointer;border-radius:2px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.12em;font-size:.74rem;transition:all .15s;white-space:nowrap;
+}
+.ability-btn .cost{margin-left:8px;color:inherit;font-size:.9em;opacity:.85}
+.ability-btn:hover:not(:disabled){background:var(--ochre);color:var(--ink)}
+.ability-btn:disabled{border-color:var(--rule);color:var(--bone-dim);cursor:default;opacity:.6}
+@media(max-width:640px){
+  .ability-row{flex-direction:column;align-items:flex-start}
+  .ability-btn{align-self:stretch;white-space:normal}
+  #inplay .cols{grid-template-columns:1fr}
+  .dice-card{grid-column:span 1}
+}
+.dice-card{grid-column:span 2;min-width:0}
+.dice-buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.die-btn{
+  background:var(--panel);border:1px solid var(--rule);color:var(--bone);
+  padding:8px 14px;cursor:pointer;border-radius:2px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  font-weight:500;text-transform:uppercase;letter-spacing:.12em;font-size:.78rem;transition:all .15s;
+}
+.die-btn:hover{color:var(--ochre);border-color:var(--ochre)}
+.die-btn:disabled{opacity:.5;cursor:default}
+.dice-result{margin-top:14px;font-family:'Vollkorn',serif;font-weight:900;font-size:2.4rem;color:var(--ochre);min-height:1.2em}
+.dice-result .die-label{
+  font-family:'Barlow Condensed',sans-serif;font-weight:500;font-size:.9rem;color:var(--bone-dim);
+  text-transform:uppercase;letter-spacing:.14em;margin-right:10px;vertical-align:middle;
+}
+.dice-history-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-top:10px}
+.dice-history{
+  display:flex;flex-wrap:wrap;gap:6px 12px;flex:1;min-width:0;
+  font-size:.82rem;color:var(--bone-dim);min-height:1.2em;
+}
+.dice-history .hist-item{white-space:nowrap}
+.dice-history .hist-item .hist-label{font-weight:700;color:var(--bone)}
+.dice-history .hist-item .hist-value{color:var(--moss);font-weight:700;margin-left:3px}
+.history-actions{display:flex;flex:none;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.history-total{
+  font-family:'Vollkorn',serif;font-weight:700;font-size:.92rem;color:var(--moss);white-space:nowrap;
+}
+.clear-history-btn{
+  flex:none;background:none;border:1px solid var(--rule);color:var(--bone-dim);
+  padding:4px 10px;cursor:pointer;border-radius:2px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  font-weight:500;text-transform:uppercase;letter-spacing:.12em;font-size:.66rem;transition:all .15s;
+}
+.clear-history-btn:hover{color:var(--ochre);border-color:var(--ochre)}
+
+.print-btn{
+  position:fixed;top:18px;right:18px;z-index:50;
+  background:var(--panel);border:1px solid var(--rule);color:var(--bone-dim);
+  padding:8px 16px;cursor:pointer;border-radius:2px;font-family:'Barlow Condensed','Arial Narrow',sans-serif;
+  font-weight:500;text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;transition:all .15s;
+}
+.print-btn:hover{color:var(--ochre);border-color:var(--ochre)}
+@media(max-width:480px){.print-btn{top:10px;right:10px;padding:6px 10px;font-size:.62rem}}
+
+.print-sheet{display:none}
+@media print{
+  .print-sheet{
+    display:block;color:#000;background:#fff;font-family:Arial,Helvetica,sans-serif;
+    font-size:10pt;line-height:1.3;
+  }
+  .print-sheet *{color:#000;box-sizing:border-box}
+
+  .ps-header{
+    border:1.5px solid #000;padding:9px 14px;margin-bottom:10px;
+    display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px 22px;
+  }
+  .ps-name{font-size:27pt;font-weight:700;letter-spacing:.02em}
+  .ps-subhead{display:flex;gap:20px;flex-wrap:wrap;font-size:10pt}
+  .ps-subhead div{display:flex;flex-direction:column}
+  .ps-subhead .ps-label{font-size:8pt;text-transform:uppercase;letter-spacing:.06em}
+  .ps-subhead .ps-val{font-weight:700}
+
+  .ps-page{}
+  .ps-page:not(:last-child){page-break-after:always;break-after:page}
+
+  .ps-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ps-col{display:flex;flex-direction:column;gap:10px;min-width:0}
+  .ps-box{border:1px solid #000;padding:8px 11px;page-break-inside:avoid;break-inside:avoid;min-width:0}
+  .ps-box-title{
+    font-size:8.5pt;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    border-bottom:1px solid #000;padding-bottom:3px;margin-bottom:6px;
+  }
+
+  .ps-abilities{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px}
+  .ps-ability{border:1px solid #000;text-align:center;padding:7px 4px;min-width:0}
+  .ps-ability .ps-a-name{font-size:8.5pt;text-transform:uppercase;font-weight:700}
+  .ps-ability .ps-a-mod{font-size:19pt;font-weight:700;line-height:1.2}
+  .ps-ability .ps-a-score{font-size:9pt}
+
+  .ps-list{list-style:none;margin:0;padding:0;min-width:0}
+  .ps-list li{display:flex;align-items:baseline;gap:6px;padding:2.5px 0;font-size:9pt;border-bottom:1px dotted #999;min-width:0}
+  .ps-list li:last-child{border-bottom:0}
+  .ps-tick{display:inline-block;width:9px;height:9px;border:1px solid #000;border-radius:50%;flex:none}
+  .ps-tick.filled{background:#000}
+  .ps-list .ps-sk-name{flex:1;min-width:0}
+  .ps-list .ps-sk-val{font-weight:700;width:2.6em;flex:none;min-width:0;text-align:right}
+
+  /* Proficiencies: label is short, value is the long descriptive text -
+     invert the usual name/val flex roles so the value wraps instead of squeezing */
+  .ps-profs .ps-sk-name{flex:0 0 70pt}
+  .ps-profs .ps-sk-val{flex:1;width:auto;min-width:0;text-align:left}
+
+  .ps-combat-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+  .ps-combat-stats div{border:1px solid #000;padding:8px 4px;min-width:0}
+  .ps-combat-stats b{display:block;font-size:20pt}
+  .ps-combat-stats span{font-size:8pt;text-transform:uppercase}
+
+  .ps-hp-row{display:flex;gap:10px;margin-bottom:8px}
+  .ps-hp-box{flex:1;border:1px solid #000;padding:8px;text-align:center;min-width:0}
+  .ps-hp-box b{display:block;font-size:8pt;text-transform:uppercase;font-weight:700}
+  .ps-hp-box .ps-fill{display:block;border-bottom:1px solid #000;height:26px;margin-top:6px}
+  .ps-hd-ds{display:flex;justify-content:space-between;gap:14px;font-size:9.5pt;flex-wrap:wrap}
+  .ps-ticks{display:inline-flex;gap:5px;margin-left:6px}
+
+  .ps-table{width:100%;border-collapse:collapse;font-size:10pt}
+  .ps-table th,.ps-table td{border:1px solid #000;padding:5px 8px;text-align:left}
+  .ps-table th{font-size:8pt;text-transform:uppercase}
+
+  .ps-features{font-size:9pt;margin:0;padding:0;list-style:none}
+  .ps-features li{margin-bottom:5px}
+
+  .ps-blank-row{display:flex;gap:10px;margin-top:10px}
+  .ps-blank-row .ps-blank-item{flex:1;border-bottom:1px solid #000;height:20px}
+  .ps-blank-row .ps-blank-wt{flex:0 0 54px;border-bottom:1px solid #000;height:20px}
+
+  .ps-notes-box{margin-top:10px;page-break-inside:auto;break-inside:auto}
+  .ps-notes-box .ps-box-title{page-break-after:avoid;break-after:avoid}
+  .ps-notes-line{border-bottom:1px solid #000;height:18px;margin-top:12px}
+}
+
+/* ---------- combat rolls ---------- */
+.rollable{cursor:pointer;transition:color .15s}
+.rollable:hover{color:var(--ochre)}
+ul.rows li.rollable:hover .prof,
+ul.rows li.rollable:hover .none,
+ul.rows li.rollable:hover .v{color:var(--ochre)}
+.abil .md.rollable:hover,.abil .sv.rollable:hover{color:var(--ochre)}
+
+.adv-row{display:flex;gap:6px;margin:12px 0 14px}
+.adv-btn{
+  flex:1;background:var(--field);border:1px solid var(--rule);color:var(--bone-dim);
+  padding:6px 4px;cursor:pointer;border-radius:2px;
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.1em;font-size:.68rem;transition:all .15s;
+}
+.adv-btn:hover{color:var(--bone);border-color:var(--bone-dim)}
+.adv-btn.is-on{background:var(--ochre);border-color:var(--ochre);color:var(--ink)}
+
+.attack-buttons{display:flex;flex-direction:column;gap:8px}
+.attack-btn{
+  display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;
+  background:var(--field);border:1px solid var(--rule);border-radius:2px;
+  padding:9px 12px;cursor:pointer;text-align:left;transition:all .15s;color:var(--bone);
+}
+.attack-btn:hover{border-color:var(--ochre)}
+.attack-btn .atk-name{
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.12em;font-size:.76rem;color:var(--bone);
+}
+.attack-btn:hover .atk-name{color:var(--ochre)}
+.attack-btn .atk-line{font-size:.82rem;color:var(--bone-dim)}
+
+.roll-log-wrap{margin-top:26px}
+.roll-log-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.roll-log{display:flex;flex-direction:column;gap:1px;max-height:280px;overflow-y:auto}
+.roll-entry{
+  display:grid;grid-template-columns:1fr auto;grid-template-areas:"label total" "detail total";
+  gap:0 14px;align-items:center;padding:8px 12px;background:var(--field);
+  border-left:2px solid var(--rule);
+}
+/* Anything appended after the headline spans the full width and takes its own
+   implicit row, so damage, effects, inputs and buttons never overlap. */
+.roll-entry > .roll-damage,
+.roll-entry > .roll-actions,
+.roll-entry > .roll-effect,
+.roll-entry > .roll-input{grid-column:1 / -1}
+.roll-entry .roll-label{
+  grid-area:label;font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.1em;font-size:.72rem;color:var(--bone);
+}
+.roll-entry .roll-detail{grid-area:detail;font-size:.78rem;color:var(--bone-dim)}
+.roll-entry .roll-total{
+  grid-area:total;font-family:'Vollkorn',Georgia,serif;font-weight:900;
+  font-size:1.5rem;color:var(--ochre);line-height:1;
+}
+.roll-entry.is-crit{border-left-color:var(--moss)}
+.roll-entry.is-crit .roll-total{color:var(--moss);font-size:1.1rem}
+.roll-entry.is-fumble{border-left-color:var(--oxblood)}
+.roll-entry.is-fumble .roll-total{color:var(--oxblood);font-size:1.1rem}
+@media print{.roll-log-wrap,.adv-row,.attack-card{display:none}}
+
+/* ---------- hit confirmation & rider effects ---------- */
+.roll-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.roll-action-btn{
+  background:none;border:1px solid var(--rule);color:var(--bone-dim);
+  padding:4px 12px;cursor:pointer;border-radius:2px;
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.1em;font-size:.66rem;transition:all .15s;
+}
+.roll-action-btn:hover{color:var(--bone);border-color:var(--bone-dim)}
+.roll-action-btn.is-hit:hover{color:var(--moss);border-color:var(--moss)}
+.roll-action-btn.is-miss:hover{color:var(--oxblood);border-color:var(--oxblood)}
+.roll-effect{margin-top:8px;padding-top:8px;border-top:1px solid var(--rule);
+  font-size:.78rem;color:var(--ochre);
+}
+.roll-entry.is-miss{opacity:.55}
+.roll-entry.is-miss .roll-total{color:var(--bone-dim)}
+/* ---------- damage block ---------- */
+.roll-damage{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  margin-top:10px;padding:10px 12px;background:var(--panel);
+  border-left:3px solid var(--ochre);border-radius:2px;
+}
+.roll-damage .dmg-value{
+  font-family:'Vollkorn',Georgia,serif;font-weight:900;font-size:2.4rem;
+  line-height:1;color:var(--ochre);
+}
+.roll-damage .dmg-type{
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;color:var(--bone);
+}
+.roll-damage .dmg-dice{margin-left:auto;font-size:.76rem;color:var(--bone-dim)}
+.roll-damage.is-crit{border-left-color:var(--moss);background:#26332a}
+.roll-damage.is-crit .dmg-value{color:var(--moss)}
+.roll-damage.is-crit .dmg-type{color:var(--moss)}
+
+/* ---------- death saves ---------- */
+.ds-roll-btn{
+  width:100%;margin-top:14px;background:none;border:1px solid var(--oxblood);
+  color:var(--oxblood);padding:9px 14px;cursor:pointer;border-radius:2px;
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.14em;font-size:.74rem;transition:all .15s;
+}
+.ds-roll-btn:hover{background:var(--oxblood);color:var(--bone)}
+.roll-entry.is-hit{border-left-color:var(--moss)}
+.roll-effect.is-good{color:var(--moss);border-top-color:var(--moss)}
+.roll-effect.is-bad{color:var(--oxblood);border-top-color:var(--oxblood)}
+@media print{.roll-damage{display:none}}
+
+/* ---------- Heroic Inspiration reroll ---------- */
+.roll-action-btn.is-reroll{color:var(--leather);border-color:var(--leather)}
+.roll-action-btn.is-reroll:hover{background:var(--leather);color:var(--ink)}
+.roll-action-btn.is-reroll::before{content:"\21BB";margin-right:6px}
+
+/* ---------- killed outright ---------- */
+.dead-notice{
+  margin-top:16px;padding:12px 14px;border:1px solid var(--oxblood);
+  border-left-width:3px;border-radius:2px;background:#2a1c1b;
+  font-size:.84rem;line-height:1.5;color:var(--bone);
+}
+.dead-notice strong{
+  display:block;margin-bottom:4px;color:var(--oxblood);
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.14em;font-size:.78rem;
+}
+.hp-card.dead .hp-input{color:var(--oxblood)}
+@media print{.dead-notice{display:none}}
+
+/* ---------- manual dice entry ---------- */
+.mode-btn{
+  flex:1;background:var(--field);border:1px solid var(--rule);color:var(--bone-dim);
+  padding:6px 4px;cursor:pointer;border-radius:2px;
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.1em;font-size:.68rem;transition:all .15s;
+}
+.mode-btn:hover{color:var(--bone);border-color:var(--bone-dim)}
+.mode-btn.is-on{background:var(--leather);border-color:var(--leather);color:var(--bone)}
+.adv-btn:disabled{opacity:.35;cursor:default}
+.adv-btn:disabled:hover{color:var(--bone-dim);border-color:var(--rule)}
+.manual-hint{
+  margin:0 0 14px;font-size:.76rem;line-height:1.45;color:var(--bone-dim);
+  border-left:2px solid var(--leather);padding-left:10px;
+}
+.roll-input{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;
+}
+.roll-input .ri-label{
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.12em;font-size:.68rem;color:var(--bone-dim);
+}
+.roll-input .ri-field{
+  width:82px;background:var(--ink);border:1px solid var(--leather);color:var(--bone);
+  padding:6px 8px;border-radius:2px;font-family:'Vollkorn',Georgia,serif;
+  font-size:1.05rem;text-align:center;
+}
+.roll-input .ri-field:focus{outline:none;border-color:var(--ochre)}
+@media print{.manual-hint,.roll-input{display:none}}
+
+</style>
+</head>
+<body>
+<button type="button" id="printBtn" class="print-btn" aria-label="View a printable character sheet">Print Version</button>
+
+<div class="print-sheet" id="printSheet">
+  <div class="ps-page">
+    <div class="ps-header">
+      <div class="ps-name">RAKI</div>
+      <div class="ps-subhead">
+        <div><span class="ps-label">Class &amp; Level</span><span class="ps-val">Monk 3</span></div>
+        <div><span class="ps-label">Background</span><span class="ps-val">Wayfarer</span></div>
+        <div><span class="ps-label">Species</span><span class="ps-val">Human</span></div>
+        <div><span class="ps-label">Alignment</span><span class="ps-val">Neutral Good</span></div>
+        <div><span class="ps-label">Subclass</span><span class="ps-val">Warrior of the Open Hand</span></div>
+      </div>
+    </div>
+
+    <div class="ps-columns">
+      <div class="ps-col">
+        <div class="ps-box">
+
+          <div class="ps-abilities">
+            <div class="ps-ability"><div class="ps-a-name">Str</div><div class="ps-a-mod">&minus;2</div><div class="ps-a-score">6</div></div>
+            <div class="ps-ability"><div class="ps-a-name">Dex</div><div class="ps-a-mod">+4</div><div class="ps-a-score">19</div></div>
+            <div class="ps-ability"><div class="ps-a-name">Con</div><div class="ps-a-mod">+1</div><div class="ps-a-score">12</div></div>
+            <div class="ps-ability"><div class="ps-a-name">Int</div><div class="ps-a-mod">+0</div><div class="ps-a-score">11</div></div>
+            <div class="ps-ability"><div class="ps-a-name">Wis</div><div class="ps-a-mod">+3</div><div class="ps-a-score">16</div></div>
+            <div class="ps-ability"><div class="ps-a-name">Cha</div><div class="ps-a-mod">+0</div><div class="ps-a-score">11</div></div>
+          </div>
+        </div>
+        <div class="ps-box">
+
+          <div class="ps-combat-stats">
+            <div><b>17</b><span>Armor Class</span></div>
+            <div><b>+4</b><span>Initiative</span></div>
+            <div><b>40</b><span>Speed (ft)</span></div>
+          </div>
+        </div>
+        <div class="ps-box">
+
+          <div class="ps-hp-row">
+            <div class="ps-hp-box"><b>Hit Point Max</b>27</div>
+            <div class="ps-hp-box"><b>Current HP</b><span class="ps-fill"></span></div>
+            <div class="ps-hp-box"><b>Temp HP</b><span class="ps-fill"></span></div>
+          </div>
+          <div class="ps-hd-ds">
+            <span>Hit Dice 3d8 <span class="ps-ticks"><span class="ps-tick"></span><span class="ps-tick"></span><span class="ps-tick"></span></span></span>
+            <span>Death Saves &mdash; Succ. <span class="ps-ticks"><span class="ps-tick"></span><span class="ps-tick"></span><span class="ps-tick"></span></span> Fail <span class="ps-ticks"><span class="ps-tick"></span><span class="ps-tick"></span><span class="ps-tick"></span></span></span>
+          </div>
+        </div>
+        <div class="ps-box">
+          <div class="ps-box-title">Attacks</div>
+          <table class="ps-table">
+            <tr><th>Name</th><th>Atk</th><th>Damage / Type</th></tr>
+            <tr><td>Unarmed Strike</td><td>+6</td><td>1d6+4 bludgeoning</td></tr>
+            <tr><td>Quarterstaff</td><td>+6</td><td>1d6+4 bludgeoning</td></tr>
+            <tr><td>Dagger (&times;7)</td><td>+6</td><td>1d4+4 piercing, thrown 20/60</td></tr>
+          </table>
+        </div>
+        <div class="ps-box">
+          <div class="ps-box-title">Active Combat Options</div>
+          <ul class="ps-features">
+            <li><b>Flurry of Blows</b> (1 Focus, bonus action) — Two Unarmed Strikes; each hit: Topple, Push or Addle.</li>
+            <li><b>Deflect Attacks</b> (reaction) — Reduce a B/P/S hit by 1d10+7. At 0, 1 Focus redirects: DC 13 Dex save or 2d6+4 same type.</li>
+            <li><b>Patient Defense</b> (1 Focus, bonus action) — Disengage + Dodge.</li>
+            <li><b>Step of the Wind</b> (1 Focus, bonus action) — Disengage + Dash, jump doubled.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ps-col">
+        <div class="ps-box">
+          <div class="ps-box-title">Saving Throws</div>
+          <ul class="ps-list">
+            <li><span class="ps-tick filled"></span><span class="ps-sk-name">Strength</span><span class="ps-sk-val">+0</span></li>
+            <li><span class="ps-tick filled"></span><span class="ps-sk-name">Dexterity</span><span class="ps-sk-val">+6</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Constitution</span><span class="ps-sk-val">+1</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Intelligence</span><span class="ps-sk-val">+0</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Wisdom</span><span class="ps-sk-val">+3</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Charisma</span><span class="ps-sk-val">+0</span></li>
+          </ul>
+        </div>
+        <div class="ps-box">
+          <div class="ps-box-title">Skills</div>
+          <ul class="ps-list">
+            <li><span class="ps-tick filled"></span><span class="ps-sk-name">Acrobatics (Dex)</span><span class="ps-sk-val">+6</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Animal Handling (Wis)</span><span class="ps-sk-val">+3</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Arcana (Int)</span><span class="ps-sk-val">+0</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Athletics (Str)</span><span class="ps-sk-val">&minus;2</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Deception (Cha)</span><span class="ps-sk-val">+0</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">History (Int)</span><span class="ps-sk-val">+0</span></li>
+            <li><span class="ps-tick filled"></span><span class="ps-sk-name">Insight (Wis)</span><span class="ps-sk-val">+5</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Intimidation (Cha)</span><span class="ps-sk-val">+0</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Investigation (Int)</span><span class="ps-sk-val">+0</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Medicine (Wis)</span><span class="ps-sk-val">+3</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Nature (Int)</span><span class="ps-sk-val">+0</span></li>
+            <li><span class="ps-tick filled"></span><span class="ps-sk-name">Perception (Wis)</span><span class="ps-sk-val">+5</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Performance (Cha)</span><span class="ps-sk-val">+0</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Persuasion (Cha)</span><span class="ps-sk-val">+0</span></li>
+            <li><span class="ps-tick filled"></span><span class="ps-sk-name">Religion (Int)</span><span class="ps-sk-val">+2</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Sleight of Hand (Dex)</span><span class="ps-sk-val">+4</span></li>
+            <li><span class="ps-tick filled"></span><span class="ps-sk-name">Stealth (Dex)</span><span class="ps-sk-val">+6</span></li>
+            <li><span class="ps-tick"></span><span class="ps-sk-name">Survival (Wis)</span><span class="ps-sk-val">+3</span></li>
+          </ul>
+        </div>
+        <div class="ps-box">
+
+          <ul class="ps-list">
+            <li><span class="ps-sk-name">Passive Perception</span><span class="ps-sk-val">15</span></li>
+            <li><span class="ps-sk-name">Passive Insight</span><span class="ps-sk-val">15</span></li>
+            <li><span class="ps-sk-name">Passive Investigation</span><span class="ps-sk-val">10</span></li>
+            <li><span class="ps-sk-name">Proficiency Bonus</span><span class="ps-sk-val">+2</span></li>
+          </ul>
+        </div>
+        <div class="ps-box">
+          <div class="ps-box-title">Resources</div>
+          <ul class="ps-list">
+            <li><span class="ps-sk-name">Heroic Inspiration Points (long rest)</span><span class="ps-ticks"><span class="ps-tick"></span></span></li>
+            <li><span class="ps-sk-name">Focus Points (short/long rest, DC 13)</span><span class="ps-ticks"><span class="ps-tick"></span><span class="ps-tick"></span><span class="ps-tick"></span></span></li>
+            <li><span class="ps-sk-name">Luck Points (long rest)</span><span class="ps-ticks"><span class="ps-tick"></span><span class="ps-tick"></span></span></li>
+            <li><span class="ps-sk-name">Uncanny Metabolism (long rest)</span><span class="ps-ticks"><span class="ps-tick"></span></span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ps-page">
+    <div class="ps-columns">
+      <div class="ps-col">
+        <div class="ps-box ps-profs">
+          <div class="ps-box-title">Proficiencies &amp; Languages</div>
+          <ul class="ps-list">
+            <li><span class="ps-sk-name">Armor</span><span class="ps-sk-val">None</span></li>
+            <li><span class="ps-sk-name">Weapons</span><span class="ps-sk-val">Simple, Scimitar, Shortsword, Hand Crossbow</span></li>
+            <li><span class="ps-sk-name">Tools</span><span class="ps-sk-val">Thieves' Tools +6, Horn</span></li>
+            <li><span class="ps-sk-name">Languages</span><span class="ps-sk-val">Common, Dwarvish, Common Sign Language</span></li>
+          </ul>
+        </div>
+        <div class="ps-box">
+          <div class="ps-box-title">Features &amp; Traits</div>
+          <ul class="ps-features">
+            <li><b>Martial Arts</b> (d6) — Dex for unarmed/monk weapon attacks, damage and Grapple/Shove DC; bonus action Unarmed Strike.</li>
+            <li><b>Unarmored Defense</b> — AC = 10 + Dex + Wis = 17.</li>
+            <li><b>Unarmored Movement</b> — Speed 40 ft.</li>
+            <li><b>Human</b> — Resourceful, Skillful, Versatile.</li>
+            <li><b>Flurry of Blows</b> (1 Focus, bonus action) — Two Unarmed Strikes; each hit: Topple, Push or Addle.</li>
+            <li><b>Topple</b> — Dex save DC 13 or prone.</li>
+            <li><b>Push</b> — Str save DC 13, shoved 15 ft.</li>
+            <li><b>Addle</b> — No Opportunity Attacks until its next turn.</li>
+            <li><b>Deflect Attacks</b> (reaction) — Reduce a B/P/S hit by 1d10+7. At 0, 1 Focus redirects: DC 13 Dex save or 2d6+4 same type.</li>
+            <li><b>Uncanny Metabolism</b> (1/long rest) — On initiative, regain all Focus and 1d6+3 HP.</li>
+            <li><b>Lucky</b> (2/long rest, feat) — Advantage on a d20 test, or impose disadvantage on an attack against him.</li>
+            <li><b>Tough</b> (feat) — +2 HP per level, 6 total (included above).</li>
+            <li><b>Heroic Inspiration</b> (Human) — Free after every long rest.</li>
+            <li><b>Patient Defense</b> (1 Focus, bonus action) — Disengage + Dodge.</li>
+            <li><b>Step of the Wind</b> (1 Focus, bonus action) — Disengage + Dash, jump doubled.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ps-col">
+        <div class="ps-box">
+          <div class="ps-box-title">Equipment</div>
+          <ul class="ps-list">
+            <li><span class="ps-sk-name">Dagger &times;7, Quarterstaff, Traveler's Clothes, Thieves' Tools, Horn</span><span class="ps-sk-val">16 lb</span></li>
+            <li><span class="ps-sk-name">Backpack, Rations &times;10, Torch &times;10, Bedroll, Rope, Waterskin, Oil &times;2, Tinderbox, Pouch &times;2</span><span class="ps-sk-val">57 lb</span></li>
+            <li><span class="ps-sk-name">Carrying (full pack) / Capacity</span><span class="ps-sk-val">73 / 90 lb</span></li>
+            <li><span class="ps-sk-name">Coin</span><span class="ps-sk-val">27 gp</span></li>
+          </ul>
+          <div class="ps-blank-row"><span class="ps-blank-item"></span><span class="ps-blank-wt"></span></div>
+          <div class="ps-blank-row"><span class="ps-blank-item"></span><span class="ps-blank-wt"></span></div>
+          <div class="ps-blank-row"><span class="ps-blank-item"></span><span class="ps-blank-wt"></span></div>
+          <div class="ps-blank-row"><span class="ps-blank-item"></span><span class="ps-blank-wt"></span></div>
+        </div>
+        <div class="ps-box">
+          <div class="ps-box-title">Personality</div>
+          <ul class="ps-features">
+            <li><b>Traits</b> &mdash; He watches hands, not faces. A street habit that never left. He'll tell you where everyone in a room is standing, who's armed and who moved, and won’t have registered the conversation. He doesn't argue, he just doesn't comply. Nods, agrees, and then does the thing he was going to do. Confrontation was never a tool available to him, so he never learned to use it.</li>
+            <li><b>Bond</b> &mdash; Bruni's beads, and the word he was named with. He'll pronounce it for any dwarf who asks and has never let one translate it.</li>
+            <li><b>Flaws</b> &mdash; He reads people too well to be honest with them. Compulsion toward bigger opponents.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="ps-box ps-notes-box">
+      <div class="ps-box-title">Notes</div>
+      <div class="ps-notes-line"></div>
+      <div class="ps-notes-line"></div>
+      <div class="ps-notes-line"></div>
+      <div class="ps-notes-line"></div>
+      <div class="ps-notes-line"></div>
+      <div class="ps-notes-line"></div>
+      <div class="ps-notes-line"></div>
+      <div class="ps-notes-line"></div>
+      <div class="ps-notes-line"></div>
+      <div class="ps-notes-line"></div>
+      <div class="ps-notes-line"></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="mast">
+    <h1>Raki</h1>
+    <div class="sub">Human &middot; Monk 3 &middot; Warrior of the Open Hand &middot; Wayfarer &middot; Neutral Good</div>
+    <p class="gloss">He was never going to hit hard. The open hand doesn't generate force. It borrows it, and lets a man's own weight put him on the floor.</p>
+  </header>
+
+  <div class="top">
+    <figure class="art" style="margin:0">
+      <img src="assets/raki-art.jpg" alt="Raki">
+      <figcaption>24 &middot; 5′7″ &middot; 115 lb &middot; A small, shaven-headed young man in patched travelling clothes several sizes too generous for him, hands bound in dirty linen, carrying a crooked walking staff. Lockpicks hang openly from his belt beside a dwarf's prayer beads.</figcaption>
+    </figure>
+
+    <div>
+      <div class="vitals">
+        <div class="vital"><b>17</b><span class="label">Armour Class</span></div>
+        <div class="vital"><b>27</b><span class="label">Hit Points</span></div>
+        <div class="vital"><b>40</b><span class="label">Speed (ft)</span></div>
+      </div>
+
+      <div class="abils">
+        <div class="abil weak"><div class="nm">Str</div><div class="sc">6</div><div class="md rollable" data-roll-check="str" title="Roll Strength check">-2</div><div class="sv rollable" data-roll-save="str" title="Roll Strength save"><span class="bead"></span>+0</div></div>
+        <div class="abil"><div class="nm">Dex</div><div class="sc">19</div><div class="md rollable" data-roll-check="dex" title="Roll Dexterity check">+4</div><div class="sv rollable" data-roll-save="dex" title="Roll Dexterity save"><span class="bead"></span>+6</div></div>
+        <div class="abil"><div class="nm">Con</div><div class="sc">12</div><div class="md rollable" data-roll-check="con" title="Roll Constitution check">+1</div><div class="sv rollable" data-roll-save="con" title="Roll Constitution save"><span class="bead off"></span>+1</div></div>
+        <div class="abil"><div class="nm">Int</div><div class="sc">11</div><div class="md rollable" data-roll-check="int" title="Roll Intelligence check">+0</div><div class="sv rollable" data-roll-save="int" title="Roll Intelligence save"><span class="bead off"></span>+0</div></div>
+        <div class="abil"><div class="nm">Wis</div><div class="sc">16</div><div class="md rollable" data-roll-check="wis" title="Roll Wisdom check">+3</div><div class="sv rollable" data-roll-save="wis" title="Roll Wisdom save"><span class="bead off"></span>+3</div></div>
+        <div class="abil"><div class="nm">Cha</div><div class="sc">11</div><div class="md rollable" data-roll-check="cha" title="Roll Charisma check">+0</div><div class="sv rollable" data-roll-save="cha" title="Roll Charisma save"><span class="bead off"></span>+0</div></div>
+      </div>
+
+      <div class="cols" style="margin-top:22px">
+        <div>
+          <span class="label" style="display:block;margin-bottom:10px">Skills</span>
+          <ul class="rows">
+            <li class="rollable" data-roll-skill="acrobatics" title="Roll Acrobatics"><span class="bead"></span><span class="prof">Acrobatics</span><span class="v">+6</span></li>
+            <li class="rollable" data-roll-skill="stealth" title="Roll Stealth"><span class="bead"></span><span class="prof">Stealth</span><span class="v">+6</span></li>
+            <li class="rollable" data-roll-skill="insight" title="Roll Insight"><span class="bead"></span><span class="prof">Insight</span><span class="v">+5</span></li>
+            <li class="rollable" data-roll-skill="perception" title="Roll Perception"><span class="bead"></span><span class="prof">Perception</span><span class="v">+5</span></li>
+            <li class="rollable" data-roll-skill="religion" title="Roll Religion"><span class="bead"></span><span class="prof">Religion</span><span class="v">+2</span></li>
+            <li class="rollable" data-roll-skill="sleightOfHand" title="Roll Sleight of Hand"><span class="bead off"></span><span class="none">Sleight of Hand</span><span class="v">+4</span></li>
+            <li><span class="bead off"></span><span class="none">All others</span><span class="v" style="color:var(--bone-dim)">by ability</span></li>
+          </ul>
+        </div>
+        <div>
+          <span class="label" style="display:block;margin-bottom:10px">At a glance</span>
+          <ul class="rows">
+            <li class="rollable" data-roll-init="1"><span class="none">Initiative</span><span class="v">+4</span></li>
+            <li><span class="none">Proficiency bonus</span><span class="v">+2</span></li>
+            <li><span class="none">Focus points</span><span class="v">3, short rest</span></li>
+            <li><span class="none">Focus save DC</span><span class="v">13</span></li>
+            <li><span class="none">Passive Perception</span><span class="v">15</span></li>
+            <li><span class="none">Passive Insight</span><span class="v">15</span></li>
+            <li><span class="none">Passive Investigation</span><span class="v">10</span></li>
+            <li><span class="none">Hit dice</span><span class="v">3d8</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button id="toggleAll" type="button">Expand all</button>
+
+  <section id="inplay">
+    <details open>
+    <summary class="label">In Play</summary>
+    <div class="cols">
+      <div class="card hp-card" id="hpCard">
+        <span class="kind">Hit Points</span>
+        <div class="hp-row">
+          <input type="number" id="hpCurrent" class="hp-input" min="0" max="27" value="27" aria-label="Current hit points">
+          <span class="hp-max">/ <span id="hpMax">27</span></span>
+        </div>
+        <div class="hp-quick">
+          <input type="number" id="hpAmount" min="1" value="1" aria-label="Amount to apply">
+          <button type="button" id="hpDamage">Damage</button>
+          <button type="button" id="hpHeal">Heal</button>
+          <button type="button" id="hpReset">Reset to max</button>
+        </div>
+        <div class="dead-notice" id="deadNotice" hidden></div>
+        <div class="death-saves" id="deathSaves" hidden>
+          <span class="label" style="display:block;margin-bottom:6px">Death Saves</span>
+          <div class="ds-row"><span class="ds-label">Successes</span><div class="pip-row" data-pool="dsSuccess"></div></div>
+          <div class="ds-row"><span class="ds-label">Failures</span><div class="pip-row" data-pool="dsFail"></div></div>
+          <button type="button" id="rollDeathSave" class="ds-roll-btn">Roll Death Save</button>
+        </div>
+      </div>
+      <div class="card">
+        <span class="kind">Resources</span>
+        <div class="resource-row">
+          <span class="res-label">Heroic Inspiration</span>
+          <div class="pip-row" data-pool="inspiration"></div><span class="pip-count" data-count="inspiration">1/1</span>
+        </div>
+        <div class="resource-row">
+          <span class="res-label">Focus</span>
+          <div class="pip-row" data-pool="focus"></div><span class="pip-count" data-count="focus">3/3</span>
+        </div>
+        <div class="resource-row">
+          <span class="res-label">Luck</span>
+          <div class="pip-row" data-pool="luck"></div><span class="pip-count" data-count="luck">2/2</span>
+        </div>
+      </div>
+      <div class="card attack-card">
+        <span class="kind">Attacks</span>
+        <div class="adv-row" role="group" aria-label="Dice source">
+          <button type="button" class="mode-btn is-on" data-mode="auto">Roll for me</button>
+          <button type="button" class="mode-btn" data-mode="manual">I roll</button>
+        </div>
+        <div class="adv-row" role="group" aria-label="Roll mode">
+          <button type="button" class="adv-btn" data-adv="dis">Disadv</button>
+          <button type="button" class="adv-btn is-on" data-adv="flat">Normal</button>
+          <button type="button" class="adv-btn" data-adv="adv">Adv</button>
+        </div>
+        <p class="manual-hint" id="manualHint" hidden>
+          Roll your own dice and type the result; the sheet still applies
+          modifiers, crits and effects. Pick your own die for advantage.
+        </p>
+        <div class="attack-buttons">
+          <button type="button" class="attack-btn" data-attack="0"><span class="atk-name">Unarmed Strike</span><span class="atk-line">+6 &middot; 1d6+4 bludgeoning</span></button>
+          <button type="button" class="attack-btn" data-attack="1"><span class="atk-name">Quarterstaff</span><span class="atk-line">+6 &middot; 1d6+4 bludgeoning</span></button>
+          <button type="button" class="attack-btn" data-attack="2"><span class="atk-name">Dagger</span><span class="atk-line">+6 &middot; 1d4+4 piercing</span></button>
+        </div>
+      </div>
+      <div class="card dice-card">
+        <span class="kind">Dice Roller</span>
+        <div class="dice-buttons">
+          <button type="button" class="die-btn" data-sides="4">D4</button>
+          <button type="button" class="die-btn" data-sides="6">D6</button>
+          <button type="button" class="die-btn" data-sides="10">D10</button>
+          <button type="button" class="die-btn" data-sides="100">D100</button>
+          <button type="button" class="die-btn" data-sides="12">D12</button>
+          <button type="button" class="die-btn" data-sides="20">D20</button>
+        </div>
+        <div class="dice-result" id="diceResult" aria-live="polite">&mdash;</div>
+        <div class="dice-history-row">
+          <div class="dice-history" id="diceHistory"></div>
+          <div class="history-actions">
+            <span class="history-total" id="historyTotal" hidden></span>
+            <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
+            <button type="button" id="clearHistory" class="clear-history-btn">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="roll-log-wrap">
+      <div class="roll-log-head">
+        <span class="label">Roll Log</span>
+        <button type="button" id="clearRollLog" class="clear-history-btn">Clear</button>
+      </div>
+      <div class="roll-log" id="rollLog" aria-live="polite"></div>
+    </div>
+
+    <div class="ability-list">
+      <span class="label" style="display:block;margin:26px 0 10px">Abilities</span>
+      <div class="ability-row">
+        <div class="ability-info">
+          <h3>Flurry of Blows</h3>
+          <p>Two Unarmed Strikes as a Bonus Action, each +6 to hit for 1d6+4 and imposing one Open Hand effect (Topple/Push: DC 13 save).</p>
+        </div>
+        <button type="button" class="ability-btn" data-action="0" data-pool="focus" data-amount="1">Use <span class="cost">1 Focus</span></button>
+      </div>
+      <div class="ability-row">
+        <div class="ability-info">
+          <h3>Patient Defense</h3>
+          <p>Disengage and Dodge as a Bonus Action.</p>
+        </div>
+        <button type="button" class="ability-btn" data-action="1" data-pool="focus" data-amount="1">Use <span class="cost">1 Focus</span></button>
+      </div>
+      <div class="ability-row">
+        <div class="ability-info">
+          <h3>Step of the Wind</h3>
+          <p>Disengage and Dash as a Bonus Action, jump distance doubled.</p>
+        </div>
+        <button type="button" class="ability-btn" data-action="2" data-pool="focus" data-amount="1">Use <span class="cost">1 Focus</span></button>
+      </div>
+      <div class="ability-row">
+        <div class="ability-info">
+          <h3>Deflect Attacks · Redirect</h3>
+          <p>Reduces a bludgeoning, piercing, or slashing hit by 1d10+7. Redirect threshold: only if that reduction brings the hit to exactly 0. Attacker (5 ft melee / 60 ft ranged) makes a DC 13 Dex save or takes 2d6+4 of the same type.</p>
+        </div>
+        <button type="button" class="ability-btn" data-action="3" data-pool="focus" data-amount="1">Use <span class="cost">1 Focus</span></button>
+      </div>
+      <div class="ability-row">
+        <div class="ability-info">
+          <h3>Lucky<span class="cost">2/long rest</span></h3>
+          <p>Spend for advantage on a d20 test, or to impose disadvantage on an attack against him.</p>
+        </div>
+        <button type="button" class="ability-btn" data-action="4" data-pool="luck" data-amount="1">Use <span class="cost">1 Luck</span></button>
+      </div>
+      <div class="ability-row">
+        <div class="ability-info">
+          <h3>Uncanny Metabolism<span class="cost">1/long rest</span></h3>
+          <p>Restores all Focus Points automatically. Roll 1d6+3 and add the result to Hit Points above.</p>
+        </div>
+        <button type="button" class="ability-btn" data-action="5" data-special="refillFocus">Use</button>
+      </div>
+    </div>
+
+    <div class="rest-row">
+      <button type="button" id="shortRest">Short Rest</button>
+      <button type="button" id="longRest">Long Rest</button>
+    </div>
+    </details>
+  </section>
+
+  <section>
+    <details>
+    <summary class="label">Attacks</summary>
+    <div class="cols">
+      <div class="card">
+        <span class="kind">Action or bonus action</span><h3>Unarmed Strike<span class="cost">+6</span></h3>
+        <p>1d6+4 bludgeoning, reach 5 ft. Available as an Action, and again as a Bonus Action.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Bonus action</span><h3>Flurry of Blows<span class="cost">1 Focus</span></h3>
+        <p>Two Unarmed Strikes as a Bonus Action, each at +6 for 1d6+4. Every hit imposes one Open Hand effect.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Weapon</span><h3>Quarterstaff<span class="cost">+6</span></h3>
+        <p>1d6+4 bludgeoning, reach 5 ft. Simple, Versatile.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Weapon</span><h3>Dagger<span class="cost">+6</span></h3>
+        <p>1d4+4 piercing, reach 5 ft, or thrown at 20/60 ft. Simple, Finesse, Light, Thrown. Seven carried.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Unarmed Strike option</span><h3>Grapple<span class="cost">DC 14</span></h3>
+        <p>Replaces the damage of an Unarmed Strike. Str or Dex save, target chooses, or it has the Grappled condition.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Unarmed Strike option</span><h3>Shove<span class="cost">DC 14</span></h3>
+        <p>Replaces the damage of an Unarmed Strike. Str or Dex save, target chooses, or pushed 5 ft away or knocked Prone.</p>
+      </div>
+    </div>
+    </details>
+  </section>
+  <section>
+    <details>
+    <summary class="label">Open Hand Technique, one per Flurry hit</summary>
+    <div class="cols">
+      <div class="card">
+        <span class="kind">Subclass feature</span><h3>Topple</h3>
+        <p>Dex save DC 13 or Prone. Advantage for everyone in melee.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Subclass feature</span><h3>Push</h3>
+        <p>Str save DC 13, shoved 15 ft.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Subclass feature</span><h3>Addle</h3>
+        <p>No Opportunity Attacks until the start of its next turn.</p>
+      </div>
+    </div>
+    </details>
+  </section>
+  <section>
+    <details>
+    <summary class="label">Reaction &amp; reserves</summary>
+    <div class="cols">
+      <div class="card">
+        <span class="kind">Class feature · Reaction</span><h3>Deflect Attacks</h3>
+        <p>Reduce any bludgeoning, piercing or slashing hit by <strong>1d10+7</strong>. At zero, 1 Focus redirects it. A creature within 5 ft for melee, or 60 ft for ranged, makes a DC 13 Dex save or takes 2d6+4 of the same type.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Class feature</span><h3>Uncanny Metabolism<span class="cost">1 / long rest</span></h3>
+        <p>On rolling initiative, regain <strong>all</strong> Focus Points and 1d6+3 hit points.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Feat</span><h3>Lucky<span class="cost">2/long rest</span></h3>
+        <p>Spend 1 for advantage on any d20 test he makes, or 1 to impose disadvantage on an attack roll against him. Back on a long rest.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Feat</span><h3>Tough</h3>
+        <p>Hit Point maximum raised by 2 at every character level, currently 6 in total.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Species trait</span><h3>Heroic Inspiration</h3>
+        <p>Granted free after every long rest, from being Human.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Class feature · Bonus action</span><h3>Patient Defense<span class="cost">1 Focus</span></h3>
+        <p>Disengage <em>and</em> Dodge as a Bonus Action. Disengage on its own is free.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Class feature · Bonus action</span><h3>Step of the Wind<span class="cost">1 Focus</span></h3>
+        <p>Disengage <em>and</em> Dash as a Bonus Action, jump distance doubled. Dash on its own is free.</p>
+      </div>
+    </div>
+    </details>
+  </section>
+
+  <section>
+    <details>
+    <summary class="label">Core traits</summary>
+    <div class="cols">
+      <div class="card">
+        <span class="kind">Class feature</span><h3>Martial Arts<span class="cost">d6</span></h3>
+        <p>Dexterity replaces Strength on attack and damage rolls with Unarmed Strikes and Monk weapons, and on the save DC when he Grapples or Shoves. Unarmed Strike damage uses a d6.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Class feature</span><h3>Unarmored Defense</h3>
+        <p>Base AC is 10 plus Dexterity plus Wisdom, which comes to 17. Lost the moment he wears armour or holds a Shield.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Class feature</span><h3>Unarmored Movement</h3>
+        <p>Speed raised to 40 ft. Also lost while wearing armour or holding a Shield.</p>
+      </div>
+      <div class="card">
+        <span class="kind">Species traits</span><h3>Human</h3>
+        <p>Medium. Resourceful grants Heroic Inspiration on a long rest, Skillful granted Perception, and Versatile granted the Tough feat.</p>
+      </div>
+    </div>
+
+    <div class="cols" style="margin-top:26px">
+      <div>
+        <span class="label" style="display:block;margin-bottom:10px">Proficiencies</span>
+        <ul class="rows">
+          <li><span class="none">Armour</span><span class="v" style="font-size:.9rem">None</span></li>
+          <li><span class="none">Weapons</span><span class="v" style="font-size:.9rem">Simple, Scimitar, Shortsword, Hand Crossbow</span></li>
+          <li><span class="none">Tools</span><span class="v" style="font-size:.9rem">Thieves' Tools +6, Horn</span></li>
+          <li><span class="none">Saving throws</span><span class="v" style="font-size:.9rem">Strength, Dexterity</span></li>
+          <li><span class="none">Languages</span><span class="v" style="font-size:.9rem">Common, Dwarvish, Common Sign Language</span></li>
+        </ul>
+      </div>
+      <div>
+        <span class="label" style="display:block;margin-bottom:10px">Recovery</span>
+        <ul class="rows">
+          <li><span class="none">Heroic Inspiration</span><span class="v" style="font-size:.9rem">Long rest</span></li>
+          <li><span class="none">Focus</span><span class="v" style="font-size:.9rem">Short or long rest</span></li>
+          <li><span class="none">Luck</span><span class="v" style="font-size:.9rem">Long rest</span></li>
+          <li><span class="none">Hit Dice</span><span class="v" style="font-size:.9rem">1 per long rest</span></li>
+        </ul>
+      </div>
+    </div>
+    </details>
+  </section>
+
+  <section>
+    <details>
+    <summary class="label">Equipment</summary>
+    <div class="cols">
+      <div>
+        <span class="label" style="display:block;margin-bottom:10px">On his person</span>
+        <ul class="rows">
+          <li><span class="none">Dagger &times;7</span><span class="v">7 lb</span></li>
+          <li><span class="none">Quarterstaff</span><span class="v">4 lb</span></li>
+          <li><span class="none">Traveler's Clothes</span><span class="v">4 lb</span></li>
+          <li><span class="none">Thieves' Tools</span><span class="v">1 lb</span></li>
+          <li><span class="none">Horn</span><span class="v"></span></li>
+          <li><span class="prof">Worn weight</span><span class="v">16 lb</span></li>
+        </ul>
+      </div>
+      <div>
+        <span class="label" style="display:block;margin-bottom:10px">In the backpack</span>
+        <ul class="rows">
+          <li><span class="none">Backpack</span><span class="v">5 lb</span></li>
+          <li><span class="none">Rations &times;10</span><span class="v">20 lb</span></li>
+          <li><span class="none">Torch &times;10</span><span class="v">10 lb</span></li>
+          <li><span class="none">Bedroll</span><span class="v">7 lb</span></li>
+          <li><span class="none">Rope</span><span class="v">5 lb</span></li>
+          <li><span class="none">Waterskin</span><span class="v">5 lb</span></li>
+          <li><span class="none">Oil &times;2</span><span class="v">2 lb</span></li>
+          <li><span class="none">Tinderbox</span><span class="v">1 lb</span></li>
+          <li><span class="none">Pouch &times;2</span><span class="v">2 lb</span></li>
+          <li><span class="prof">Pack weight</span><span class="v">57 lb</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cols" style="margin-top:26px">
+      <div>
+        <ul class="rows">
+          <li><span class="prof">Carrying the pack</span><span class="v">73 lb</span></li>
+          <li><span class="prof">Pack dropped</span><span class="v">16 lb</span></li>
+        </ul>
+      </div>
+      <div>
+        <ul class="rows">
+          <li><span class="none">Capacity</span><span class="v">90 lb</span></li>
+          <li><span class="none">Push, drag, lift</span><span class="v">180 lb</span></li>
+          <li><span class="none">Coin</span><span class="v">27 gp</span></li>
+        </ul>
+      </div>
+    </div>
+    </details>
+  </section>
+
+  <section>
+    <details>
+    <summary class="label">Who he is</summary>
+    <blockquote class="pull">Weight decides nothing. The largest man in the room does not get to determine what happens in it.</blockquote>
+
+    <div class="cols" style="margin-top:30px">
+      <div>
+        <div class="trait"><span class="label">Trait</span><p>He watches hands, not faces. A street habit that never left. He'll tell you where everyone in a room is standing, who's armed and who moved, and won’t have registered the conversation.</p></div>
+        <div class="trait"><span class="label">Trait</span><p>He doesn't argue, he just doesn't comply. Nods, agrees, and then does the thing he was going to do. Confrontation was never a tool available to him, so he never learned to use it.</p></div>
+      </div>
+      <div>
+        <div class="trait"><span class="label">Bond</span><p>Bruni's beads, and the word he was named with. He'll pronounce it for any dwarf who asks and has never let one translate it.</p></div>
+        <div class="trait"><span class="label">Flaws</span><p>He reads people too well to be honest with them. Compulsion toward bigger opponents.</p></div>
+      </div>
+    </div>
+    </details>
+  </section>
+
+  <section>
+    <details>
+    <summary class="label">The road</summary>
+    <div class="top">
+      <div class="portrait">
+        <img src="assets/raki-portrait.jpg" alt="Raki">
+      </div>
+      <div class="story">
+        <p>Street child, no name and no city. A travelling dwarf monk named Bruni caught him picking a lock and simply never left, twelve years of walking, no monastery, no order. Bruni taught him to fight by borrowing other men's force, because Raki has none of his own. Then someone killed Bruni, and Raki was there, and it made no difference at all. He's still walking, because it's the only thing he was ever taught to do.</p>
+        <p>Bruni: dwarf monk. Deceased. Took him off the street at roughly eight, taught him everything, never explained why. The only ally he’s ever had.</p>
+        <p>None, no order, no monastery, no chapter house. Whatever tradition Bruni came from, Raki learned it secondhand on the road and has never met another practitioner. He couldn’t name the school if you asked.</p>
+        <p>Whoever killed Bruni: unidentified. Raki was present. He doesn’t know their name, their face may or may not be clear to him, and he is nowhere near capable of doing anything about it.</p>
+      </div>
+    </div>
+    </details>
+  </section>
+
+  <figure class="closing">
+    <img src="assets/raki-closing.jpg" alt="">
+  </figure>
+
+</div>
+<script>window.SHEET_CONFIG = {"slug":"raki","maxHP":27,"pools":[{"key":"inspiration","max":1,"recovery":"long"},{"key":"focus","max":3,"recovery":"short"},{"key":"luck","max":2,"recovery":"long"}],"attacks":[{"name":"Unarmed Strike","attack":6,"damage":"1d6+4","type":"bludgeoning"},{"name":"Quarterstaff","attack":6,"damage":"1d6+4","type":"bludgeoning"},{"name":"Dagger","attack":6,"damage":"1d4+4","type":"piercing"}],"unarmed":{"name":"Unarmed Strike","attack":6,"damage":"1d6+4","type":"bludgeoning"},"checks":{"initiative":4,"abilities":[{"key":"str","name":"Strength","value":-2},{"key":"dex","name":"Dexterity","value":4},{"key":"con","name":"Constitution","value":1},{"key":"int","name":"Intelligence","value":0},{"key":"wis","name":"Wisdom","value":3},{"key":"cha","name":"Charisma","value":0}],"saves":[{"key":"str","name":"Strength","value":0},{"key":"dex","name":"Dexterity","value":6},{"key":"con","name":"Constitution","value":1},{"key":"int","name":"Intelligence","value":0},{"key":"wis","name":"Wisdom","value":3},{"key":"cha","name":"Charisma","value":0}],"skills":[{"key":"acrobatics","name":"Acrobatics","value":6},{"key":"animalHandling","name":"Animal Handling","value":3},{"key":"arcana","name":"Arcana","value":0},{"key":"athletics","name":"Athletics","value":-2},{"key":"deception","name":"Deception","value":0},{"key":"history","name":"History","value":0},{"key":"insight","name":"Insight","value":5},{"key":"intimidation","name":"Intimidation","value":0},{"key":"investigation","name":"Investigation","value":0},{"key":"medicine","name":"Medicine","value":3},{"key":"nature","name":"Nature","value":0},{"key":"perception","name":"Perception","value":5},{"key":"performance","name":"Performance","value":0},{"key":"persuasion","name":"Persuasion","value":0},{"key":"religion","name":"Religion","value":2},{"key":"sleightOfHand","name":"Sleight of Hand","value":4},{"key":"stealth","name":"Stealth","value":6},{"key":"survival","name":"Survival","value":3}]},"actions":[{"name":"Flurry of Blows","pool":"focus","amount":1,"special":null,"roll":null,"attacks":2,"apply":null,"effects":"openHand"},{"name":"Patient Defense","pool":"focus","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Step of the Wind","pool":"focus","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Deflect Attacks · Redirect","pool":"focus","amount":1,"special":null,"roll":"1d10+7","attacks":0,"apply":null,"effects":null},{"name":"Lucky","pool":"luck","amount":1,"special":null,"roll":null,"attacks":0,"apply":null,"effects":null},{"name":"Uncanny Metabolism","pool":null,"amount":0,"special":"refillFocus","roll":"1d6+3","attacks":0,"apply":"heal","effects":null}],"effects":{"openHand":[{"name":"Topple","save":"Dex","dc":"13","onFail":"knocked Prone — advantage for everyone in melee"},{"name":"Push","save":"Str","dc":"13","onFail":"shoved 15 ft away"},{"name":"Addle","save":null,"dc":null,"onFail":"no Opportunity Attacks until the start of its next turn"}]}};</script>
+<script>
+// Dice evaluation. Pure functions with an injectable RNG so they can be tested.
+//
+// This module is written as an ES module for the test suite, and inlined into
+// the built page as a classic script (build.js strips the `export` keywords).
+// Keep it dependency-free and ES5-compatible in its body for that reason.
+
+/** Parse "2d6+4", "1d10-1", "d20" into {count, sides, mod}, or null. */
+function parseDice(expr) {
+  var m = /^\s*(\d*)d(\d+)\s*([+-]\s*\d+)?\s*$/.exec(String(expr || ''));
+  if (!m) return null;
+  return {
+    count: m[1] ? parseInt(m[1], 10) : 1,
+    sides: parseInt(m[2], 10),
+    mod: m[3] ? parseInt(m[3].replace(/\s+/g, ''), 10) : 0,
+  };
+}
+
+/** Default RNG: a fair die of `sides`. */
+function defaultRng(sides) {
+  return Math.floor(Math.random() * sides) + 1;
+}
+
+/**
+ * Roll a dice expression.
+ *
+ * `double` doubles the number of dice but NOT the modifier, which is the 2024
+ * critical hit rule.
+ */
+function rollDice(expr, double, rng) {
+  var roll = rng || defaultRng;
+  var spec = parseDice(expr);
+  if (!spec) return null;
+  var count = double ? spec.count * 2 : spec.count;
+  var rolls = [];
+  var total = spec.mod;
+  for (var i = 0; i < count; i++) {
+    var r = roll(spec.sides);
+    rolls.push(r);
+    total += r;
+  }
+  return { rolls: rolls, mod: spec.mod, total: total, sides: spec.sides };
+}
+
+/**
+ * A d20 test. `mode` is 'adv', 'dis' or anything else for a flat roll.
+ * Only a natural 20 crits, and only a natural 1 fumbles.
+ */
+function rollD20(modifier, mode, rng) {
+  var roll = rng || defaultRng;
+  var a = roll(20);
+  var b = (mode === 'adv' || mode === 'dis') ? roll(20) : null;
+  var pick = a;
+  if (b !== null) pick = (mode === 'adv') ? Math.max(a, b) : Math.min(a, b);
+  return {
+    natural: pick,
+    pair: b === null ? null : [a, b],
+    modifier: modifier,
+    total: pick + modifier,
+    crit: pick === 20,
+    fumble: pick === 1,
+  };
+}
+
+// In-play state: hit points, resource pools, rests, dice.
+//
+// This is a CLASSIC script, not an ES module — it gets inlined verbatim into
+// the built page so the sheet works from file:// with no server. Its only
+// input is window.SHEET_CONFIG, written by tools/build.js, so nothing here is
+// character-specific.
+
+(function () {
+  var config = window.SHEET_CONFIG || {};
+  var MAX_HP = config.maxHP || 1;
+  var STORE_KEY = 'sheet-' + (config.slug || 'character') + '-v1';
+
+  // Pools come from the derived character; death saves are always present.
+  var pools = {};
+  (config.pools || []).forEach(function (p) {
+    pools[p.key] = { max: p.max, recovery: p.recovery };
+  });
+  pools.dsSuccess = { max: 3, recovery: 'none' };
+  pools.dsFail = { max: 3, recovery: 'none' };
+
+  var hpInput = document.getElementById('hpCurrent');
+  if (!hpInput) return;
+
+  function defaultState() {
+    var s = { hp: MAX_HP, umUsed: false };
+    Object.keys(pools).forEach(function (key) {
+      s[key] = key.indexOf('ds') === 0 ? 0 : pools[key].max;
+    });
+    return s;
+  }
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      if (raw) return Object.assign(defaultState(), JSON.parse(raw));
+    } catch (e) { /* private mode, blocked storage: fall through */ }
+    return defaultState();
+  }
+
+  function saveState() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+  }
+
+  function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+
+  var state = loadState();
+  var hpAmount = document.getElementById('hpAmount');
+  var hpCard = document.getElementById('hpCard');
+  var deathSaves = document.getElementById('deathSaves');
+
+  var deadNotice = document.getElementById('deadNotice');
+
+  var DEATH_CAUSES = {
+    damage: {
+      title: 'Killed outright.',
+      body: 'The remaining damage met or exceeded your hit point maximum, so '
+        + 'there are no death saves. Healing or a long rest undoes this.',
+    },
+    saves: {
+      title: 'Dead.',
+      body: 'Three failed death saving throws. Healing or a long rest undoes this.',
+    },
+  };
+
+  function renderHP() {
+    hpInput.value = state.hp;
+    hpCard.classList.toggle('low', state.hp > 0 && state.hp <= Math.ceil(MAX_HP / 4));
+    hpCard.classList.toggle('dead', !!state.dead);
+    // Once killed outright there is nothing to roll for.
+    deathSaves.hidden = state.hp !== 0 || !!state.dead;
+    if (deadNotice) {
+      deadNotice.hidden = !state.dead;
+      if (state.dead) {
+        var cause = DEATH_CAUSES[state.deathCause] || DEATH_CAUSES.damage;
+        deadNotice.innerHTML = '<strong>' + cause.title + '</strong>' + cause.body;
+      }
+    }
+  }
+
+  /**
+   * Damage from a single source.
+   *
+   * Instant death: if the damage reduces you to 0 and the REMAINING damage
+   * equals or exceeds your hit point maximum, you die outright, with no death
+   * saves. Setting hit points directly deliberately does not trigger this —
+   * only damage from one source can.
+   */
+  function applyDamage(amount) {
+    var remaining = amount - state.hp;
+    setHP(state.hp - amount);
+    if (state.hp === 0 && remaining >= MAX_HP) {
+      state.dead = true;
+      state.deathCause = 'damage';
+      state.dsSuccess = 0;
+      state.dsFail = 3;
+      renderPool('dsSuccess');
+      renderPool('dsFail');
+      renderHP();
+      saveState();
+      return { dead: true, remaining: remaining };
+    }
+    return { dead: false, remaining: Math.max(0, remaining) };
+  }
+
+  function setHP(v) {
+    state.hp = clamp(Math.round(isNaN(v) ? state.hp : v), 0, MAX_HP);
+    if (state.hp > 0) { state.dead = false; state.deathCause = null; }
+    if (state.hp !== 0) {
+      state.dsSuccess = 0;
+      state.dsFail = 0;
+      renderPool('dsSuccess');
+      renderPool('dsFail');
+    }
+    renderHP();
+    saveState();
+  }
+
+  function containerFor(key) {
+    return document.querySelector('[data-pool="' + key + '"]');
+  }
+
+  function buildPips(key) {
+    var container = containerFor(key);
+    if (!container) return;
+    container.innerHTML = '';
+    for (var i = 0; i < pools[key].max; i++) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pip';
+      b.setAttribute('aria-label', key + ' point ' + (i + 1));
+      (function (idx) {
+        b.addEventListener('click', function () {
+          state[key] = (state[key] === idx + 1) ? idx : idx + 1;
+          renderPool(key);
+          saveState();
+        });
+      })(i);
+      container.appendChild(b);
+    }
+  }
+
+  function renderPool(key) {
+    var container = containerFor(key);
+    if (!container) return;
+    Array.prototype.forEach.call(container.querySelectorAll('.pip'), function (p, i) {
+      p.classList.toggle('spent', i >= state[key]);
+    });
+    var countEl = document.querySelector('[data-count="' + key + '"]');
+    if (countEl) countEl.textContent = state[key] + '/' + pools[key].max;
+    refreshAbilityButtons();
+  }
+
+  function refreshAbilityButtons() {
+    Array.prototype.forEach.call(
+      document.querySelectorAll('.ability-btn[data-pool]'),
+      function (btn) {
+        var pool = btn.getAttribute('data-pool');
+        var amount = parseInt(btn.getAttribute('data-amount'), 10);
+        btn.disabled = state[pool] < amount;
+      }
+    );
+    var umBtn = document.querySelector('.ability-btn[data-special="refillFocus"]');
+    if (umBtn) umBtn.disabled = state.umUsed;
+  }
+
+  Object.keys(pools).forEach(buildPips);
+  Object.keys(pools).forEach(renderPool);
+  renderHP();
+
+  Array.prototype.forEach.call(
+    document.querySelectorAll('.ability-btn[data-pool]'),
+    function (btn) {
+      btn.addEventListener('click', function () {
+        var pool = btn.getAttribute('data-pool');
+        var amount = parseInt(btn.getAttribute('data-amount'), 10);
+        if (state[pool] < amount) return;
+        state[pool] -= amount;
+        renderPool(pool);
+        saveState();
+      });
+    }
+  );
+
+  var umBtn = document.querySelector('.ability-btn[data-special="refillFocus"]');
+  if (umBtn) {
+    umBtn.addEventListener('click', function () {
+      if (state.umUsed) return;
+      state.focus = pools.focus.max;
+      state.umUsed = true;
+      renderPool('focus');
+      saveState();
+    });
+  }
+
+  hpInput.addEventListener('change', function () { setHP(parseInt(hpInput.value, 10)); });
+  document.getElementById('hpDamage').addEventListener('click', function () {
+    applyDamage(parseInt(hpAmount.value, 10) || 0);
+  });
+  document.getElementById('hpHeal').addEventListener('click', function () {
+    setHP(state.hp + (parseInt(hpAmount.value, 10) || 0));
+  });
+  document.getElementById('hpReset').addEventListener('click', function () { setHP(MAX_HP); });
+
+  // Surface the bits of HP/death-save state the roller needs to drive.
+  window.SHEET_API = {
+    heal: function (amount) { setHP(state.hp + amount); },
+    damage: function (amount) { return applyDamage(amount); },
+    setHP: function (v) { setHP(v); },
+    isDead: function () { return !!state.dead; },
+    markDead: function (cause) {
+      state.dead = true;
+      state.deathCause = cause || 'saves';
+      renderHP();
+      saveState();
+    },
+    getHP: function () { return state.hp; },
+    isDying: function () { return state.hp === 0 && !state.dead; },
+    addDeathSave: function (kind, count) {
+      var key = kind === 'success' ? 'dsSuccess' : 'dsFail';
+      state[key] = clamp(state[key] + (count || 1), 0, 3);
+      renderPool(key);
+      saveState();
+      return state[key];
+    },
+    deathSaves: function () {
+      return { success: state.dsSuccess, fail: state.dsFail };
+    },
+    poolValue: function (key) { return pools[key] ? state[key] : 0; },
+    spendPool: function (key, amount) {
+      if (!pools[key] || state[key] < amount) return false;
+      state[key] -= amount;
+      renderPool(key);
+      saveState();
+      return true;
+    },
+    resetDeathSaves: function () {
+      state.dsSuccess = 0;
+      state.dsFail = 0;
+      renderPool('dsSuccess');
+      renderPool('dsFail');
+      saveState();
+    },
+  };
+
+  // Rests restore every pool whose recovery matches, derived from the config.
+  function rest(kind) {
+    Object.keys(pools).forEach(function (key) {
+      var rec = pools[key].recovery;
+      if (key.indexOf('ds') === 0) {
+        if (kind === 'long') state[key] = 0;
+      } else if (rec === 'short' || (kind === 'long' && rec === 'long')) {
+        state[key] = pools[key].max;
+      }
+      renderPool(key);
+    });
+    if (kind === 'long') {
+      state.umUsed = false;
+      state.dead = false;
+      state.deathCause = null;
+      setHP(MAX_HP);
+    }
+    refreshAbilityButtons();
+    saveState();
+  }
+
+  document.getElementById('shortRest').addEventListener('click', function () { rest('short'); });
+  document.getElementById('longRest').addEventListener('click', function () { rest('long'); });
+})();
+
+// --- Collapse/expand, print ---------------------------------------------------
+(function () {
+  var btn = document.getElementById('toggleAll');
+  var ds = Array.prototype.slice.call(document.querySelectorAll('section > details'));
+  if (!btn || !ds.length) return;
+  btn.addEventListener('click', function () {
+    var open = ds.some(function (d) { return !d.open; });
+    ds.forEach(function (d) { d.open = open; });
+    btn.textContent = open ? 'Collapse all' : 'Expand all';
+  });
+  window.addEventListener('beforeprint', function () {
+    ds.forEach(function (d) { d.open = true; });
+  });
+})();
+
+(function () {
+  var printBtn = document.getElementById('printBtn');
+  if (printBtn) printBtn.addEventListener('click', function () { window.print(); });
+})();
+
+// --- Combat rolls -------------------------------------------------------------
+// Attack rolls, checks, saves and feature dice. Everything it needs is derived
+// at build time and handed over in SHEET_CONFIG; nothing here knows any rules
+// beyond "a natural 20 doubles the damage dice".
+
+(function () {
+  var config = window.SHEET_CONFIG || {};
+  var log = document.getElementById('rollLog');
+  if (!log) return;
+
+  var mode = 'flat'; // 'adv' | 'dis' | 'flat'
+
+  // parseDice / rollDice / rollD20 come from src/dice.js, inlined above.
+  function rollAttackDamage(expr, crit) { return rollDice(expr, crit); }
+
+  function setMode(next) {
+    mode = next;
+    Array.prototype.forEach.call(document.querySelectorAll('.adv-btn'), function (b) {
+      b.classList.toggle('is-on', b.getAttribute('data-adv') === next);
+    });
+  }
+
+  /**
+   * A d20 test at the current advantage setting.
+   *
+   * Advantage falls back to normal afterwards: Lucky grants advantage on *the*
+   * roll, one Luck Point at a time, so it should never carry silently into the
+   * next one.
+   */
+  function d20(modifier) {
+    var r = rollD20(modifier, mode);
+    if (mode !== 'flat') setMode('flat');
+    return r;
+  }
+
+  // --- manual dice -----------------------------------------------------------
+  // At a physical table you roll your own dice. In manual mode the sheet stops
+  // generating numbers and asks for them instead, but still does all the
+  // arithmetic: modifiers, crit rules, damage totals, rider effects.
+  var MANUAL_KEY = 'sheet-' + (config.slug || 'character') + '-manual';
+  var manual = false;
+  try { manual = localStorage.getItem(MANUAL_KEY) === '1'; } catch (e) { /* ignore */ }
+
+  function setManual(on) {
+    manual = !!on;
+    try { localStorage.setItem(MANUAL_KEY, manual ? '1' : '0'); } catch (e) { /* ignore */ }
+    Array.prototype.forEach.call(document.querySelectorAll('.mode-btn'), function (b) {
+      b.classList.toggle('is-on', (b.getAttribute('data-mode') === 'manual') === manual);
+    });
+    // Advantage is something you handle with your own two dice in manual mode.
+    Array.prototype.forEach.call(document.querySelectorAll('.adv-btn'), function (b) {
+      b.disabled = manual;
+    });
+    var hint = document.getElementById('manualHint');
+    if (hint) hint.hidden = !manual;
+    if (manual) setMode('flat');
+  }
+
+  /** Append an input to a log entry and hand the typed number to `cb`. */
+  function askForValue(el, promptText, cb) {
+    var row = document.createElement('div');
+    row.className = 'roll-input';
+
+    var caption = document.createElement('span');
+    caption.className = 'ri-label';
+    caption.textContent = promptText;
+
+    var input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'ri-field';
+    input.min = '0';
+
+    var ok = document.createElement('button');
+    ok.type = 'button';
+    ok.className = 'roll-action-btn is-hit';
+    ok.textContent = 'Enter';
+
+    function submit() {
+      var v = parseInt(input.value, 10);
+      if (isNaN(v)) return;
+      if (row.parentNode) row.parentNode.removeChild(row);
+      cb(v);
+    }
+    ok.addEventListener('click', submit);
+    input.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter') submit();
+    });
+
+    row.appendChild(caption);
+    row.appendChild(input);
+    row.appendChild(ok);
+    el.appendChild(row);
+    if (input.focus) input.focus();
+    return row;
+  }
+
+  /** A d20 test: rolled for you, or typed in from the die on the table. */
+  function getD20(el, modifier, cb) {
+    if (!manual) { cb(d20(modifier)); return; }
+    askForValue(el, 'd20 result', function (raw) {
+      var nat = Math.max(1, Math.min(20, raw));
+      cb({
+        natural: nat,
+        pair: null,
+        modifier: modifier,
+        total: nat + modifier,
+        crit: nat === 20,
+        fumble: nat === 1,
+      });
+    });
+  }
+
+  /** Damage dice: rolled for you, or typed in as the total of the dice. */
+  function getDice(el, expr, double, cb) {
+    if (!manual) { cb(rollDice(expr, double)); return; }
+    var spec = parseDice(expr);
+    if (!spec) { cb(null); return; }
+    var count = double ? spec.count * 2 : spec.count;
+    askForValue(el, 'total of ' + count + 'd' + spec.sides, function (sum) {
+      cb({ rolls: [sum], mod: spec.mod, total: sum + spec.mod, sides: spec.sides });
+    });
+  }
+
+  // Heroic Inspiration is a reroll, not advantage: you see the die, then decide.
+  var INSPIRATION = 'inspiration';
+
+  function canReroll() {
+    var api = window.SHEET_API;
+    return !!api && api.poolValue(INSPIRATION) > 0;
+  }
+
+  /** Spend Heroic Inspiration to discard this entry and roll it again. */
+  function rerollItem(redo) {
+    return {
+      label: 'Reroll',
+      tone: 'reroll',
+      run: function () {
+        var api = window.SHEET_API;
+        if (!api || !api.spendPool(INSPIRATION, 1)) return;
+        redo();
+      },
+    };
+  }
+
+  function sign(n) { return n < 0 ? String(n) : '+' + n; }
+
+  function entry(label, headline, detail, flag) {
+    var el = document.createElement('div');
+    el.className = 'roll-entry' + (flag ? ' is-' + flag : '');
+    el.innerHTML = '<span class="roll-label">' + label + '</span>'
+      + '<span class="roll-total">' + headline + '</span>'
+      + '<span class="roll-detail">' + detail + '</span>';
+    log.insertBefore(el, log.firstChild);
+    while (log.children.length > 12) log.removeChild(log.lastChild);
+    return el;
+  }
+
+  function describeD20(r) {
+    var parts = r.pair
+      ? 'd20 [' + r.pair.join(', ') + '] &rarr; ' + r.natural
+      : 'd20 ' + r.natural;
+    return parts + ' ' + sign(r.modifier);
+  }
+
+  function setPart(el, cls, html) {
+    var target = el.querySelector('.' + cls);
+    // Coerce explicitly: assigning a number to innerHTML is not reliable.
+    if (target) target.innerHTML = String(html);
+  }
+
+  /** Append a row of buttons to a log entry, and return it. */
+  function actionsRow(el, items, onPick) {
+    var row = document.createElement('div');
+    row.className = 'roll-actions';
+    items.forEach(function (item) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'roll-action-btn' + (item.tone ? ' is-' + item.tone : '');
+      b.textContent = item.label;
+      b.addEventListener('click', function () { onPick(item, row); });
+      row.appendChild(b);
+    });
+    el.appendChild(row);
+    return row;
+  }
+
+  /**
+   * Offer the rider effects a landed hit can impose (Open Hand, and friends).
+   *
+   * One effect PER LANDED HIT: "whenever you hit a creature with one of the
+   * attacks granted by your Flurry of Blows, you can impose one of the
+   * following effects on that target". Each attack resolves separately, so a
+   * two-strike Flurry that lands both offers two independent choices.
+   */
+  function offerEffects(el, effectKey) {
+    var list = (config.effects || {})[effectKey];
+    if (!list || !list.length) return;
+
+    actionsRow(el, list.map(function (e) {
+      return { label: e.name, effect: e };
+    }), function (item, row) {
+      var e = item.effect;
+      var out = document.createElement('div');
+      out.className = 'roll-effect';
+      out.innerHTML = e.save
+        ? e.name + ': DC ' + e.dc + ' ' + e.save + ' save or ' + e.onFail
+        : e.name + ': ' + e.onFail;
+      row.parentNode.replaceChild(out, row);
+    });
+  }
+
+  /**
+   * One attack. Rolls to hit, then waits for you to say whether it landed
+   * before rolling damage — except on a natural 20 or 1, which by the 2024
+   * rules always hit and always miss respectively.
+   */
+  function rollAttack(attack, labelPrefix, effectKey) {
+    var label = (labelPrefix || '') + attack.name;
+    // The entry appears first so manual mode has somewhere to put its input.
+    var el = entry(label, '&mdash;', manual ? 'Roll your d20' : '', '');
+    getD20(el, attack.attack, function (hit) {
+      resolveAttack(el, attack, hit, labelPrefix, effectKey);
+    });
+  }
+
+  function resolveAttack(el, attack, hit, labelPrefix, effectKey) {
+    var flag = hit.crit ? 'crit' : (hit.fumble ? 'fumble' : '');
+    el.className = 'roll-entry' + (flag ? ' is-' + flag : '');
+    setPart(el, 'roll-total', hit.total);
+    setPart(el, 'roll-detail', describeD20(hit));
+
+    function land(crit) {
+      getDice(el, attack.damage, crit, function (dmg) { showDamage(dmg, crit); });
+    }
+
+    function showDamage(dmg, crit) {
+      // Keep the to-hit total in place and give damage its own, larger block,
+      // so both numbers are readable at a glance instead of one replacing the
+      // other.
+      var block = document.createElement('div');
+      block.className = 'roll-damage' + (crit ? ' is-crit' : '');
+      block.innerHTML = '<span class="dmg-value">' + dmg.total + '</span>'
+        + '<span class="dmg-type">' + (attack.type || 'damage')
+        + (crit ? ' &middot; critical' : '') + '</span>'
+        + '<span class="dmg-dice">' + attack.damage
+        + ' [' + dmg.rolls.join(', ') + (dmg.mod ? ' ' + sign(dmg.mod) : '') + ']</span>';
+      el.appendChild(block);
+      setPart(el, 'roll-detail', describeD20(hit) + ' &nbsp;&middot;&nbsp; '
+        + (crit ? 'critical hit' : 'hit'));
+      if (effectKey) offerEffects(el, effectKey);
+    }
+
+    // Rerolling replaces this entry with a fresh attempt. Offered only while
+    // the outcome is still open — never once damage has been rolled.
+    var redo = function () {
+      if (el.parentNode) el.parentNode.removeChild(el);
+      rollAttack(attack, labelPrefix, effectKey);
+    };
+
+    // A natural 20 always hits, so it resolves immediately and is not rerollable.
+    if (hit.crit) { land(true); return; }
+
+    if (hit.fumble) {
+      setPart(el, 'roll-detail', describeD20(hit) + ' &nbsp;&middot;&nbsp; natural 1, miss');
+      el.classList.add('is-miss');
+      if (canReroll()) actionsRow(el, [rerollItem(redo)], function (item) { item.run(); });
+      return;
+    }
+
+    var items = [{ label: 'Hit', tone: 'hit' }, { label: 'Miss', tone: 'miss' }];
+    if (canReroll()) items.push(rerollItem(redo));
+
+    actionsRow(el, items, function (item, row) {
+      if (item.run) { item.run(); return; }
+      row.parentNode.removeChild(row);
+      if (item.label === 'Hit') {
+        land(false);
+      } else {
+        el.classList.add('is-miss');
+        setPart(el, 'roll-detail', describeD20(hit) + ' &nbsp;&middot;&nbsp; miss');
+      }
+    });
+  }
+
+  // --- dice source toggle ---
+  Array.prototype.forEach.call(document.querySelectorAll('.mode-btn'), function (btn) {
+    btn.addEventListener('click', function () {
+      setManual(btn.getAttribute('data-mode') === 'manual');
+    });
+  });
+  setManual(manual); // restore the saved preference
+
+  // --- advantage toggle ---
+  Array.prototype.forEach.call(document.querySelectorAll('.adv-btn'), function (btn) {
+    btn.addEventListener('click', function () {
+      mode = btn.getAttribute('data-adv');
+      Array.prototype.forEach.call(document.querySelectorAll('.adv-btn'), function (b) {
+        b.classList.toggle('is-on', b === btn);
+      });
+    });
+  });
+
+  // --- attack buttons ---
+  Array.prototype.forEach.call(document.querySelectorAll('.attack-btn'), function (btn) {
+    btn.addEventListener('click', function () {
+      var a = (config.attacks || [])[parseInt(btn.getAttribute('data-attack'), 10)];
+      if (a) rollAttack(a);
+    });
+  });
+
+  // --- checks, saves, initiative ---
+  function bindCheck(selector, attr, lookup, suffix) {
+    Array.prototype.forEach.call(document.querySelectorAll(selector), function (el) {
+      el.addEventListener('click', function () {
+        var found = lookup(el.getAttribute(attr));
+        if (!found) return;
+        rollCheck(found, suffix);
+      });
+    });
+  }
+
+  /** A check or save, with the option to spend Inspiration and roll again. */
+  function rollCheck(found, suffix) {
+    var row = entry(found.name + suffix, '&mdash;', manual ? 'Roll your d20' : '', '');
+    getD20(row, found.value, function (r) {
+      row.className = 'roll-entry' + (r.crit ? ' is-crit' : (r.fumble ? ' is-fumble' : ''));
+      setPart(row, 'roll-total', r.total);
+      setPart(row, 'roll-detail', describeD20(r));
+      if (!canReroll()) return;
+      actionsRow(row, [rerollItem(function () {
+        if (row.parentNode) row.parentNode.removeChild(row);
+        rollCheck(found, suffix);
+      })], function (item) { item.run(); });
+    });
+  }
+
+  var checks = config.checks || {};
+  var byKey = function (list) {
+    return function (key) {
+      for (var i = 0; i < (list || []).length; i++) {
+        if (list[i].key === key) return list[i];
+      }
+      return null;
+    };
+  };
+  bindCheck('[data-roll-skill]', 'data-roll-skill', byKey(checks.skills), '');
+  bindCheck('[data-roll-save]', 'data-roll-save', byKey(checks.saves), ' save');
+  // Ability checks use the raw modifier, which is a different number from the
+  // save whenever the character is proficient in that save.
+  bindCheck('[data-roll-check]', 'data-roll-check', byKey(checks.abilities), ' check');
+
+  var initEl = document.querySelector('[data-roll-init]');
+  if (initEl && typeof checks.initiative === 'number') {
+    initEl.addEventListener('click', function () {
+      var r = d20(checks.initiative);
+      entry('Initiative', r.total, describeD20(r), '');
+    });
+  }
+
+  // --- action rolls (Flurry, Deflect, Uncanny Metabolism) ---
+  Array.prototype.forEach.call(
+    document.querySelectorAll('.ability-btn[data-action]'),
+    function (btn) {
+      btn.addEventListener('click', function () {
+        var a = (config.actions || [])[parseInt(btn.getAttribute('data-action'), 10)];
+        if (!a) return;
+
+        if (a.attacks && config.unarmed) {
+          // Each strike resolves separately and carries its own rider effect.
+          for (var i = 0; i < a.attacks; i++) {
+            rollAttack(config.unarmed, a.name + ' ' + (i + 1) + ': ', a.effects);
+          }
+          return;
+        }
+        if (a.roll) {
+          var r = rollDice(a.roll);
+          if (!r) return;
+          var detail = a.roll + ' [' + r.rolls.join(', ')
+            + (r.mod ? ' ' + sign(r.mod) : '') + ']';
+          entry(a.name, r.total, detail, '');
+          if (a.apply === 'heal' && window.SHEET_HEAL) window.SHEET_HEAL(r.total);
+        }
+      });
+    }
+  );
+
+  // --- death saves ------------------------------------------------------------
+  // Flat d20, no modifier. 10 or higher succeeds. A natural 20 restores 1 hit
+  // point outright; a natural 1 counts as two failures. Three of either ends it.
+  var dsBtn = document.getElementById('rollDeathSave');
+  if (dsBtn) {
+    dsBtn.addEventListener('click', function () { rollDeathSave(); });
+  }
+
+  function rollDeathSave() {
+      var api = window.SHEET_API;
+      if (!api || !api.isDying()) return;
+      var pending = entry('Death Save', '&mdash;', manual ? 'Roll your d20' : '', '');
+      getD20(pending, 0, function (r) {
+        if (pending.parentNode) pending.parentNode.removeChild(pending);
+        resolveDeathSave(api, r);
+      });
+  }
+
+  function resolveDeathSave(api, r) {
+      var el;
+
+      if (r.natural === 20) {
+        api.resetDeathSaves();
+        api.heal(1);
+        entry('Death Save', 20, describeD20(r)
+          + ' &nbsp;&middot;&nbsp; natural 20, back up with 1 hit point', 'crit');
+        return;
+      }
+
+      if (r.natural === 1) {
+        var fails = api.addDeathSave('fail', 2);
+        el = entry('Death Save', 1, describeD20(r)
+          + ' &nbsp;&middot;&nbsp; natural 1, two failures ('
+          + fails + '/3)', 'fumble');
+      } else if (r.natural >= 10) {
+        var wins = api.addDeathSave('success', 1);
+        el = entry('Death Save', r.natural, describeD20(r)
+          + ' &nbsp;&middot;&nbsp; success (' + wins + '/3)', 'hit');
+      } else {
+        var lost = api.addDeathSave('fail', 1);
+        el = entry('Death Save', r.natural, describeD20(r)
+          + ' &nbsp;&middot;&nbsp; failure (' + lost + '/3)', 'fumble');
+      }
+
+      var tally = api.deathSaves();
+      if (tally.success >= 3) {
+        var stable = document.createElement('div');
+        stable.className = 'roll-effect is-good';
+        stable.textContent = 'Stable — unconscious, but no longer dying.';
+        el.appendChild(stable);
+      } else if (tally.fail >= 3) {
+        var dead = document.createElement('div');
+        dead.className = 'roll-effect is-bad';
+        dead.textContent = 'Three failures — dead.';
+        el.appendChild(dead);
+        if (api.markDead) api.markDead('saves');
+      }
+
+      // Heroic Inspiration can rescue a failed death save. Undo the tick this
+      // roll just applied, then roll again in its place.
+      if (canReroll()) {
+        // Undo exactly what this roll ticked: one success, one failure, or the
+        // two failures a natural 1 costs.
+        var undoKind = r.natural >= 10 ? 'success' : 'fail';
+        var undoAmount = r.natural === 1 ? -2 : -1;
+        actionsRow(el, [rerollItem(function () {
+          api.addDeathSave(undoKind, undoAmount);
+          if (el.parentNode) el.parentNode.removeChild(el);
+          rollDeathSave();
+        })], function (item) { item.run(); });
+      }
+  }
+
+  var clearLog = document.getElementById('clearRollLog');
+  if (clearLog) {
+    clearLog.addEventListener('click', function () { log.innerHTML = ''; });
+  }
+})();
+
+// --- Dice roller --------------------------------------------------------------
+(function () {
+  var HISTORY_MAX = 8;
+  var result = document.getElementById('diceResult');
+  var history = document.getElementById('diceHistory');
+  if (!result) return;
+
+  var rolls = [];
+  var dieButtons = Array.prototype.slice.call(document.querySelectorAll('.die-btn'));
+  var reduceMotion = window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var rolling = false;
+  var rollToken = 0;
+  var settleDelays = [40, 40, 50, 60, 80, 100, 130, 170, 220];
+  var PLACEHOLDER = '—';
+
+  function showValue(label, value) {
+    result.innerHTML = '<span class="die-label">' + label + '</span>' + value;
+  }
+
+  var historyTotal = document.getElementById('historyTotal');
+  function hideTotal() {
+    if (!historyTotal) return;
+    historyTotal.hidden = true;
+    historyTotal.textContent = '';
+  }
+
+  function recordRoll(label, value) {
+    rolls.unshift({ label: label, value: value });
+    rolls = rolls.slice(0, HISTORY_MAX);
+    history.innerHTML = rolls.map(function (r) {
+      return '<span class="hist-item"><span class="hist-label">' + r.label + '</span>'
+        + '<span class="hist-value">' + r.value + '</span></span>';
+    }).join('');
+    hideTotal();
+  }
+
+  dieButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (rolling) return;
+      var sides = parseInt(btn.getAttribute('data-sides'), 10);
+      var label = btn.textContent;
+      var final = Math.floor(Math.random() * sides) + 1;
+
+      if (reduceMotion) {
+        showValue(label, final);
+        recordRoll(label, final);
+        return;
+      }
+
+      rolling = true;
+      rollToken++;
+      var myToken = rollToken;
+      dieButtons.forEach(function (b) { b.disabled = true; });
+
+      var step = 0;
+      (function tick() {
+        if (myToken !== rollToken) return;
+        if (step >= settleDelays.length) {
+          showValue(label, final);
+          recordRoll(label, final);
+          rolling = false;
+          dieButtons.forEach(function (b) { b.disabled = false; });
+          return;
+        }
+        showValue(label, Math.floor(Math.random() * sides) + 1);
+        setTimeout(tick, settleDelays[step]);
+        step++;
+      })();
+    });
+  });
+
+  var clearBtn = document.getElementById('clearHistory');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function () {
+      rollToken++;
+      rolling = false;
+      dieButtons.forEach(function (b) { b.disabled = false; });
+      result.innerHTML = PLACEHOLDER;
+      rolls = [];
+      history.innerHTML = '';
+      hideTotal();
+    });
+  }
+
+  var totalBtn = document.getElementById('totalHistory');
+  if (totalBtn && historyTotal) {
+    totalBtn.addEventListener('click', function () {
+      var sum = rolls.reduce(function (acc, r) { return acc + r.value; }, 0);
+      historyTotal.textContent = 'Total: ' + sum;
+      historyTotal.hidden = false;
+    });
+  }
+})();
+
+</script>
+</body>
+</html>
