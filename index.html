@@ -671,6 +671,15 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   border:1px solid var(--leather);padding:2px 7px;border-radius:2px;white-space:nowrap;
 }
 
+/* ---------- dice block header ---------- */
+.dice-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dice-head .kind{margin-bottom:0;margin-right:auto}
+.dice-head .history-total{
+  font-family:'Vollkorn',Georgia,serif;font-weight:700;font-size:.9rem;color:var(--moss);
+}
+/* The log header holds only its own controls now, so its title never wraps. */
+.roll-log-head .label{white-space:nowrap}
+
 </style>
 </head>
 <body>
@@ -1064,7 +1073,11 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
       </div>
 
       <div class="pp-block dice-block" id="diceBlock">
-        <span class="kind">Dice</span>
+        <div class="dice-head">
+          <span class="kind">Dice</span>
+          <span class="history-total" id="historyTotal" hidden></span>
+          <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
+        </div>
         <div class="dice-buttons">
           <button type="button" class="die-btn" data-sides="4">D4</button>
           <button type="button" class="die-btn" data-sides="6">D6</button>
@@ -1079,8 +1092,7 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
     <div class="roll-log-head">
       <span class="label">Roll Log</span>
       <span class="queued-count" id="queuedCount" hidden></span>
-      <span class="history-total" id="historyTotal" hidden></span>
-      <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
+      <button type="button" id="dismissQueued" class="clear-history-btn" hidden>Dismiss</button>
       <button type="button" id="clearRollLog" class="clear-history-btn">Clear</button>
     </div>
     <div class="roll-log" id="rollLog" aria-live="polite"></div>
@@ -1623,6 +1635,12 @@ function rollD20(modifier, mode, rng) {
       saveState();
       return true;
     },
+    restorePool: function (key, amount) {
+      if (!pools[key]) return;
+      state[key] = clamp(state[key] + amount, 0, pools[key].max);
+      renderPool(key);
+      saveState();
+    },
     resetDeathSaves: function () {
       state.dsSuccess = 0;
       state.dsFail = 0;
@@ -1857,15 +1875,31 @@ function rollD20(modifier, mode, rng) {
 
   function showQueued() {
     var el = document.getElementById('queuedCount');
-    if (!el) return;
-    el.textContent = attackQueue.length + ' queued';
-    el.hidden = attackQueue.length === 0;
+    var btn = document.getElementById('dismissQueued');
+    var waiting = attackQueue.length;
+    if (el) {
+      el.textContent = waiting + ' queued';
+      el.hidden = waiting === 0;
+    }
+    if (btn) btn.hidden = waiting === 0;
   }
 
-  function enqueueAttack(run) {
-    attackQueue.push(run);
+  /**
+   * Queue an attack. `onDismiss` undoes whatever the click already spent, so
+   * dropping a queued dagger throw hands the dagger back.
+   */
+  function enqueueAttack(run, onDismiss) {
+    attackQueue.push({ run: run, dismiss: onDismiss || null });
     showQueued();
     pumpAttacks();
+  }
+
+  function dismissQueued() {
+    while (attackQueue.length) {
+      var item = attackQueue.pop();
+      if (item.dismiss) item.dismiss();
+    }
+    showQueued();
   }
 
   function resetAttackQueue() {
@@ -1877,9 +1911,9 @@ function rollD20(modifier, mode, rng) {
   function pumpAttacks() {
     if (attackBusy || !attackQueue.length) return;
     attackBusy = true;
-    var run = attackQueue.shift();
+    var item = attackQueue.shift();
     showQueued();
-    run(function () {
+    item.run(function () {
       attackBusy = false;
       pumpAttacks();
     });
@@ -2113,7 +2147,16 @@ function rollD20(modifier, mode, rng) {
         var api = window.SHEET_API;
         if (!api || !api.spendPool(a.pool, a.amount || 1)) return;
       }
-      enqueueAttack(function (done) { rollAttack(a, '', null, done); });
+      enqueueAttack(
+        function (done) { rollAttack(a, '', null, done); },
+        // If this one is dismissed before it rolls, it was never thrown.
+        a.pool
+          ? function () {
+              var api2 = window.SHEET_API;
+              if (api2 && api2.restorePool) api2.restorePool(a.pool, a.amount || 1);
+            }
+          : null
+      );
     });
   });
 
@@ -2283,6 +2326,9 @@ function rollD20(modifier, mode, rng) {
         })], function (item) { item.run(); });
       }
   }
+
+  var dismissBtn = document.getElementById('dismissQueued');
+  if (dismissBtn) dismissBtn.addEventListener('click', dismissQueued);
 
   var clearLog = document.getElementById('clearRollLog');
   if (clearLog) {

@@ -663,3 +663,12 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
   text-transform:uppercase;letter-spacing:.12em;font-size:.62rem;color:var(--leather);
   border:1px solid var(--leather);padding:2px 7px;border-radius:2px;white-space:nowrap;
 }
+
+/* ---------- dice block header ---------- */
+.dice-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.dice-head .kind{margin-bottom:0;margin-right:auto}
+.dice-head .history-total{
+  font-family:'Vollkorn',Georgia,serif;font-weight:700;font-size:.9rem;color:var(--moss);
+}
+/* The log header holds only its own controls now, so its title never wraps. */
+.roll-log-head .label{white-space:nowrap}

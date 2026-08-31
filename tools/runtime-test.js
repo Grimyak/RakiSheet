@@ -779,6 +779,55 @@ check('And it rolled the new die',
   topEntry().querySelector('.roll-total').textContent.trim(), '20');
 declare('Miss');
 
+// --- Total lives with the dice it sums ----------------------------------------
+const diceHead = doc.querySelector('#diceBlock .dice-head');
+check('Total button sits in the dice block', !!diceHead.querySelector('#totalHistory'), true);
+check('Total readout sits there too', !!diceHead.querySelector('#historyTotal'), true);
+const logHead = doc.querySelector('.roll-log-head');
+check('Log header no longer holds Total', !!logHead.querySelector('#totalHistory'), false);
+check('Log header holds Dismiss', !!logHead.querySelector('#dismissQueued'), true);
+
+// --- dismissing queued attacks ------------------------------------------------
+click(autoBtn);
+api.setHP(27);
+clearLog();
+const dismissBtn = doc.getElementById('dismissQueued');
+check('Dismiss hidden while nothing is queued', dismissBtn.hidden, true);
+
+script([20, 12]);
+click(doc.querySelector('.attack-btn'));
+click(doc.querySelector('.attack-btn'));
+click(doc.querySelector('.attack-btn'));
+check('Two attacks queued behind the first', queuedEl.textContent, '2 queued');
+check('Dismiss now offered', dismissBtn.hidden, false);
+
+click(dismissBtn);
+check('Queue emptied', queuedEl.hidden, true);
+check('Dismiss hidden again', dismissBtn.hidden, true);
+check('The in-flight attack is untouched', logEl.children.length, 1);
+
+// Resolving it must not summon a dismissed attack.
+script([6, 3]);
+declare('Hit');
+check('Nothing follows a dismissed queue', logEl.children.length, 1);
+
+// --- dismissing a thrown dagger hands the dagger back -------------------------
+click(doc.getElementById('longRest'));
+api.setHP(27);
+clearLog();
+check('Seven daggers before throwing', api.poolValue('daggers'), 7);
+
+script([20, 12]);
+click(thrownBtn);            // rolls now, dagger gone
+click(thrownBtn);            // queued, dagger also spent up front
+click(thrownBtn);            // queued
+check('Three daggers committed', api.poolValue('daggers'), 4);
+
+click(dismissBtn);
+check('Dismissed throws return their daggers', api.poolValue('daggers'), 6);
+check('The thrown one stays spent', api.poolValue('daggers') < 7, true);
+declare('Miss');
+
 Math.random = realRandom;
 
 let failed = 0;

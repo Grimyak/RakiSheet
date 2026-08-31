@@ -292,7 +292,11 @@ ${resourceRows(c)}
       </div>
 
       <div class="pp-block dice-block" id="diceBlock">
-        <span class="kind">Dice</span>
+        <div class="dice-head">
+          <span class="kind">Dice</span>
+          <span class="history-total" id="historyTotal" hidden></span>
+          <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
+        </div>
         <div class="dice-buttons">
           <button type="button" class="die-btn" data-sides="4">D4</button>
           <button type="button" class="die-btn" data-sides="6">D6</button>
@@ -307,8 +311,7 @@ ${resourceRows(c)}
     <div class="roll-log-head">
       <span class="label">Roll Log</span>
       <span class="queued-count" id="queuedCount" hidden></span>
-      <span class="history-total" id="historyTotal" hidden></span>
-      <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
+      <button type="button" id="dismissQueued" class="clear-history-btn" hidden>Dismiss</button>
       <button type="button" id="clearRollLog" class="clear-history-btn">Clear</button>
     </div>
     <div class="roll-log" id="rollLog" aria-live="polite"></div>

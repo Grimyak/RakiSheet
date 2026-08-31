@@ -240,6 +240,12 @@
       saveState();
       return true;
     },
+    restorePool: function (key, amount) {
+      if (!pools[key]) return;
+      state[key] = clamp(state[key] + amount, 0, pools[key].max);
+      renderPool(key);
+      saveState();
+    },
     resetDeathSaves: function () {
       state.dsSuccess = 0;
       state.dsFail = 0;
@@ -474,15 +480,31 @@
 
   function showQueued() {
     var el = document.getElementById('queuedCount');
-    if (!el) return;
-    el.textContent = attackQueue.length + ' queued';
-    el.hidden = attackQueue.length === 0;
+    var btn = document.getElementById('dismissQueued');
+    var waiting = attackQueue.length;
+    if (el) {
+      el.textContent = waiting + ' queued';
+      el.hidden = waiting === 0;
+    }
+    if (btn) btn.hidden = waiting === 0;
   }
 
-  function enqueueAttack(run) {
-    attackQueue.push(run);
+  /**
+   * Queue an attack. `onDismiss` undoes whatever the click already spent, so
+   * dropping a queued dagger throw hands the dagger back.
+   */
+  function enqueueAttack(run, onDismiss) {
+    attackQueue.push({ run: run, dismiss: onDismiss || null });
     showQueued();
     pumpAttacks();
+  }
+
+  function dismissQueued() {
+    while (attackQueue.length) {
+      var item = attackQueue.pop();
+      if (item.dismiss) item.dismiss();
+    }
+    showQueued();
   }
 
   function resetAttackQueue() {
@@ -494,9 +516,9 @@
   function pumpAttacks() {
     if (attackBusy || !attackQueue.length) return;
     attackBusy = true;
-    var run = attackQueue.shift();
+    var item = attackQueue.shift();
     showQueued();
-    run(function () {
+    item.run(function () {
       attackBusy = false;
       pumpAttacks();
     });
@@ -730,7 +752,16 @@
         var api = window.SHEET_API;
         if (!api || !api.spendPool(a.pool, a.amount || 1)) return;
       }
-      enqueueAttack(function (done) { rollAttack(a, '', null, done); });
+      enqueueAttack(
+        function (done) { rollAttack(a, '', null, done); },
+        // If this one is dismissed before it rolls, it was never thrown.
+        a.pool
+          ? function () {
+              var api2 = window.SHEET_API;
+              if (api2 && api2.restorePool) api2.restorePool(a.pool, a.amount || 1);
+            }
+          : null
+      );
     });
   });
 
@@ -900,6 +931,9 @@
         })], function (item) { item.run(); });
       }
   }
+
+  var dismissBtn = document.getElementById('dismissQueued');
+  if (dismissBtn) dismissBtn.addEventListener('click', dismissQueued);
 
   var clearLog = document.getElementById('clearRollLog');
   if (clearLog) {
