@@ -306,6 +306,7 @@ ${resourceRows(c)}
 
     <div class="roll-log-head">
       <span class="label">Roll Log</span>
+      <span class="queued-count" id="queuedCount" hidden></span>
       <span class="history-total" id="historyTotal" hidden></span>
       <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
       <button type="button" id="clearRollLog" class="clear-history-btn">Clear</button>

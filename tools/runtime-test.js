@@ -68,7 +68,9 @@ for (const src of scripts) {
 
 const click = (el) => el.dispatchEvent(new Event('click'));
 const logEl = doc.getElementById('rollLog');
-const clearLog = () => { logEl.innerHTML = ''; };
+// Use the real Clear control: it empties the log AND releases any attack still
+// awaiting a decision, which is what a player pressing it would expect.
+const clearLog = () => click(doc.getElementById('clearRollLog'));
 const topEntry = () => logEl.children[0];
 
 const checks = [];
@@ -95,6 +97,12 @@ click(doc.querySelector('.attack-btn'));
 e = topEntry();
 check('Normal roll shows to-hit', e.querySelector('.roll-total').textContent.trim(), '18');
 const labelsOf = (el) => [...el.querySelectorAll('.roll-action-btn')].map((b) => b.textContent);
+// Attacks now hold the queue until resolved, so tests must settle them.
+const declare = (word, el) => {
+  const btn = [...(el ?? topEntry()).querySelectorAll('.roll-action-btn')]
+    .find((b) => b.textContent === word);
+  if (btn) click(btn);
+};
 check('Normal roll offers Hit and Miss',
   labelsOf(e).filter((l) => l === 'Hit' || l === 'Miss').join(','), 'Hit,Miss');
 check('No damage before confirming', e.textContent.includes('hit '), false);
@@ -315,6 +323,7 @@ click([...topEntry().querySelectorAll('.roll-action-btn')].find((b) => b.textCon
 check('Second strike released on resolution', logEl.children.length, 2);
 check('Flurry: second strike rolled flat',
   logEl.children[0].textContent.includes('['), false);
+declare('Miss'); // settle the second strike as well
 
 // --- Heroic Inspiration reroll ------------------------------------------------
 click(doc.getElementById('longRest'));
@@ -478,6 +487,7 @@ clearLog();
 click(doc.querySelector('.attack-btn'));
 typeInto(topEntry(), 99);
 check('Above 20 clamps to 20', topEntry().className.includes('is-crit'), true);
+typeInto(topEntry(), 6); // a crit asks for damage; supply it so the attack resolves
 
 // Skills and death saves use the same path.
 clearLog();
@@ -572,12 +582,14 @@ const meleeDagger = [...doc.querySelectorAll('.attack-btn')]
 script([20, 10], [6, 2]);
 click(meleeDagger);
 check('Melee dagger costs nothing', api.poolValue('daggers'), 6);
+declare('Miss'); // release the queue
 
 // Run the pool dry: the button disables rather than throwing daggers you
 // do not have.
 for (let i = 0; i < 6; i++) {
   script([20, 10]);
   click(thrownBtn);
+  declare('Miss'); // each throw must resolve before the next rolls
 }
 check('Pool emptied', api.poolValue('daggers'), 0);
 check('Button disabled when out', thrownBtn.disabled, true);
@@ -727,6 +739,45 @@ check('Rerolled value shown', topEntry().querySelector('.roll-total').textConten
 script([6, 2], [20, 7]);
 click([...topEntry().querySelectorAll('.roll-action-btn')].find((b) => b.textContent === 'Hit'));
 check('Resolving the replacement releases the next strike', logEl.children.length, 2);
+
+// --- ordinary attacks queue too, not just Flurry ------------------------------
+click(autoBtn);
+api.setHP(27);
+clearLog();
+script([20, 12]);
+click(doc.querySelector('.attack-btn'));
+check('First attack rolled', logEl.children.length, 1);
+
+// A second click while the first is undecided is held, not rolled.
+click(doc.querySelector('.attack-btn'));
+check('Second attack is queued, not rolled', logEl.children.length, 1);
+const queuedEl = doc.getElementById('queuedCount');
+check('Queue count shown', queuedEl.hidden, false);
+check('Queue count reads one', queuedEl.textContent, '1 queued');
+
+script([6, 3], [20, 15]);
+declare('Hit');
+check('Resolving releases the queued attack', logEl.children.length, 2);
+check('Queue count hidden again', queuedEl.hidden, true);
+check('Released attack rolled its own die',
+  topEntry().querySelector('.roll-total').textContent.trim(), '21');
+declare('Miss');
+
+// --- clearing the log must not strand the queue -------------------------------
+// Without releasing it, an attack whose entry was cleared could never be
+// resolved, and no further attack would ever roll.
+clearLog();
+script([20, 12]);
+click(doc.querySelector('.attack-btn'));
+check('Attack pending before clearing', logEl.children.length, 1);
+click(doc.getElementById('clearRollLog'));
+check('Log emptied', logEl.children.length, 0);
+script([20, 14]);
+click(doc.querySelector('.attack-btn'));
+check('Attacks still work after clearing mid-roll', logEl.children.length, 1);
+check('And it rolled the new die',
+  topEntry().querySelector('.roll-total').textContent.trim(), '20');
+declare('Miss');
 
 Math.random = realRandom;
 

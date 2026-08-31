@@ -654,3 +654,12 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 
 /* A roll mid-spin reads as provisional until it settles. */
 .roll-entry.is-rolling .roll-total{opacity:.55}
+
+/* A settling roll arrives dimmed and blooms to full colour. */
+.roll-entry .roll-total{transition:color .28s ease,opacity .28s ease}
+.roll-entry.is-rolling .roll-total{opacity:.5;color:var(--leather)}
+.queued-count{
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.12em;font-size:.62rem;color:var(--leather);
+  border:1px solid var(--leather);padding:2px 7px;border-radius:2px;white-space:nowrap;
+}

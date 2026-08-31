@@ -662,6 +662,15 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 /* A roll mid-spin reads as provisional until it settles. */
 .roll-entry.is-rolling .roll-total{opacity:.55}
 
+/* A settling roll arrives dimmed and blooms to full colour. */
+.roll-entry .roll-total{transition:color .28s ease,opacity .28s ease}
+.roll-entry.is-rolling .roll-total{opacity:.5;color:var(--leather)}
+.queued-count{
+  font-family:'Barlow Condensed','Arial Narrow',sans-serif;font-weight:500;
+  text-transform:uppercase;letter-spacing:.12em;font-size:.62rem;color:var(--leather);
+  border:1px solid var(--leather);padding:2px 7px;border-radius:2px;white-space:nowrap;
+}
+
 </style>
 </head>
 <body>
@@ -1069,6 +1078,7 @@ ul.rows li.rollable:hover .v{color:var(--ochre)}
 
     <div class="roll-log-head">
       <span class="label">Roll Log</span>
+      <span class="queued-count" id="queuedCount" hidden></span>
       <span class="history-total" id="historyTotal" hidden></span>
       <button type="button" id="totalHistory" class="clear-history-btn">Total</button>
       <button type="button" id="clearRollLog" class="clear-history-btn">Clear</button>
@@ -1710,10 +1720,13 @@ function rollD20(modifier, mode, rng) {
     var step = 0;
     (function tick() {
       // The deceleration lands ON the real number rather than showing one more
-      // random frame and swapping it afterwards.
+      // random frame and swapping it afterwards. It arrives still dimmed and
+      // then blooms to full colour, so the die reads as settling rather than
+      // being corrected.
       if (step >= SPIN.length - 1) {
         target.textContent = finalTotal;
-        el.classList.remove('is-rolling');
+        setTimeout(function () { el.classList.remove('is-rolling'); },
+          SPIN[SPIN.length - 1]);
         done();
         return;
       }
@@ -1833,6 +1846,42 @@ function rollD20(modifier, mode, rng) {
     var count = double ? spec.count * 2 : spec.count;
     askForValue(el, 'total of ' + count + 'd' + spec.sides, function (sum) {
       cb({ rolls: [sum], mod: spec.mod, total: sum + spec.mod, sides: spec.sides });
+    });
+  }
+
+  // Attacks resolve one at a time. Clicking another while one is still waiting
+  // on Hit or Miss queues it rather than rolling straight away, so two results
+  // are never in flight at once.
+  var attackQueue = [];
+  var attackBusy = false;
+
+  function showQueued() {
+    var el = document.getElementById('queuedCount');
+    if (!el) return;
+    el.textContent = attackQueue.length + ' queued';
+    el.hidden = attackQueue.length === 0;
+  }
+
+  function enqueueAttack(run) {
+    attackQueue.push(run);
+    showQueued();
+    pumpAttacks();
+  }
+
+  function resetAttackQueue() {
+    attackQueue.length = 0;
+    attackBusy = false;
+    showQueued();
+  }
+
+  function pumpAttacks() {
+    if (attackBusy || !attackQueue.length) return;
+    attackBusy = true;
+    var run = attackQueue.shift();
+    showQueued();
+    run(function () {
+      attackBusy = false;
+      pumpAttacks();
     });
   }
 
@@ -2064,7 +2113,7 @@ function rollD20(modifier, mode, rng) {
         var api = window.SHEET_API;
         if (!api || !api.spendPool(a.pool, a.amount || 1)) return;
       }
-      rollAttack(a);
+      enqueueAttack(function (done) { rollAttack(a, '', null, done); });
     });
   });
 
@@ -2132,18 +2181,20 @@ function rollD20(modifier, mode, rng) {
         if (!a) return;
 
         if (a.attacks && config.unarmed) {
-          // Each strike resolves separately and carries its own rider effect.
-          // They are chained rather than fired at once, so one appears and
-          // settles before the next shows up.
-          (function next(i) {
-            if (i >= a.attacks) return;
-            rollAttack(
-              config.unarmed,
-              (a.logName || a.name) + ' ' + (i + 1) + ' · ',
-              a.effects,
-              function () { next(i + 1); }
-            );
-          })(0);
+          // Each strike resolves separately and carries its own rider effect,
+          // and goes through the same queue as any other attack.
+          for (var i = 0; i < a.attacks; i++) {
+            (function (n) {
+              enqueueAttack(function (done) {
+                rollAttack(
+                  config.unarmed,
+                  (a.logName || a.name) + ' ' + n + ' · ',
+                  a.effects,
+                  done
+                );
+              });
+            })(i + 1);
+          }
           return;
         }
         if (a.roll) {
@@ -2235,7 +2286,13 @@ function rollD20(modifier, mode, rng) {
 
   var clearLog = document.getElementById('clearRollLog');
   if (clearLog) {
-    clearLog.addEventListener('click', function () { log.innerHTML = ''; });
+    clearLog.addEventListener('click', function () {
+      log.innerHTML = '';
+      // An attack awaiting Hit or Miss has just had its entry removed, so it
+      // can never be resolved. Without this the queue stays busy forever and
+      // no further attack rolls.
+      resetAttackQueue();
+    });
   }
 })();
 
